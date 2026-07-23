@@ -310,16 +310,13 @@
   .wrap>.panel:nth-child(2){animation-delay:.04s}.wrap>.panel:nth-child(3){animation-delay:.08s}.wrap>.panel:nth-child(4){animation-delay:.12s}
   .moon{fill:#D6DAEE}
   body.sea .moon{fill:#7E8CAC}
-  .suntime{font-family:var(--mono);font-size:9px;letter-spacing:.06em;fill:var(--dim2)}
-  .suntime.on{fill:var(--cy)}
+  .arcsun{font-family:var(--mono);font-size:8px;letter-spacing:.26em;fill:var(--dim2)}
+  .arcsun .t2{fill:var(--dim);font-weight:600;letter-spacing:.12em}
   /* brand sun mark replaces the old glowing dot */
   .core{width:36px;height:36px;background:none;box-shadow:none;animation:none;display:flex;align-items:center;justify-content:center}
   .core svg{animation:sunbeat 4.5s ease-in-out infinite}
   @keyframes sunbeat{0%,100%{filter:drop-shadow(0 0 9px rgba(255,122,80,.4))}50%{filter:drop-shadow(0 0 17px rgba(255,122,80,.78))}}
-  body.sea .core svg{animation:sunbeatSea 4.5s ease-in-out infinite}
-  @keyframes sunbeatSea{0%,100%{filter:drop-shadow(0 0 9px rgba(15,168,143,.4))}50%{filter:drop-shadow(0 0 17px rgba(15,168,143,.7))}}
   .lsun{display:flex;justify-content:center;margin-bottom:20px;animation:sunbeat 4s ease-in-out infinite}
-  body.sea .lsun{animation:sunbeatSea 4s ease-in-out infinite}
   .lcard h1{font-family:var(--mono);letter-spacing:.2em;font-weight:700}
   .lcard .divg{height:1px;max-width:200px;margin:12px auto 0;background:linear-gradient(90deg,transparent,rgba(255,198,92,.5),rgba(255,107,87,.5),transparent)}
   body.sea .lcard .divg{background:linear-gradient(90deg,transparent,rgba(255,143,191,.55),rgba(15,168,143,.45),transparent)}
@@ -392,18 +389,15 @@ const todayKey=()=>dkey(new Date());
 const nowHM=()=>{const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');};
 const emptyDay=()=>({meals:[],supps:{},inj:null,water:0});
 
-// The Dawn logomark: gradient sun disc with the heartbeat pulse across it.
-const SunMark=({size=88,line=true,sea=false})=>{
-  const c0=sea?'#5FE8C9':'#FFC763', c1=sea?'#FF8FBF':'#EF6B52', ln=sea?'#0C4B41':'#2A130C', gid='dm'+(sea?'S':'H');
-  return html`
-    <svg width=${size} height=${size} viewBox="0 0 100 100" aria-hidden="true" style="display:block">
-      <defs><linearGradient id=${gid} x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color=${c0}/><stop offset="1" stop-color=${c1}/>
-      </linearGradient></defs>
-      <circle cx="50" cy="50" r="34" fill=${'url(#'+gid+')'}/>
-      ${line&&html`<path d="M15 50 L38 50 L43 58 L50 36 L57 64 L62 50 L85 50" fill="none" stroke=${ln} stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>`}
-    </svg>`;
-};
+// The Dawn logomark: gradient sun disc with the heartbeat pulse — true logo colors on every profile.
+const SunMark=({size=88,line=true})=>html`
+  <svg width=${size} height=${size} viewBox="0 0 100 100" aria-hidden="true" style="display:block">
+    <defs><linearGradient id="dmH" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFC763"/><stop offset="1" stop-color="#EF6B52"/>
+    </linearGradient></defs>
+    <circle cx="50" cy="50" r="34" fill="url(#dmH)"/>
+    ${line&&html`<path d="M15 50 L38 50 L43 58 L50 36 L57 64 L62 50 L85 50" fill="none" stroke="#2A130C" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>`}
+  </svg>`;
 
 // Sunrise / sunset for a date + location, in the device's local time (NOAA sunrise equation).
 function sunTimes(date,lat,lng){
@@ -948,7 +942,7 @@ function App(){
     const dots=[0,1,2,3].map(i=>html`<div class=${'dot'+(pinBuf.length>i?' f':'')} key=${i}></div>`);
     return html`
       <div class="login">
-        <div class="lsun"><${SunMark} size=${88} line=${true} sea=${profile==='nereid'}/></div>
+        <div class="lsun"><${SunMark} size=${88} line=${true}/></div>
         <div class="lcard">
           <h1 style="font-size:27px">${P.app}</h1>
           <div class="sub" style="margin-top:5px">${P.sub}</div>
@@ -1412,21 +1406,33 @@ function App(){
     const nowT=Math.max(0,Math.min(1,nowMin/1440));
     const [sx,sy]=bez(nowT);
     const p2=(x)=>String(x).padStart(2,'0'), fmt=(m)=>p2(Math.floor(m/60))+':'+p2(m%60);
-    const sunLine=polar==='day'?'MIDNIGHT SUN':polar==='night'?'POLAR NIGHT':isDay?'SUNSET '+fmt(ssMin):'SUNRISE '+fmt(srMin);
-    const cres=(cx,cy,r)=>`M ${cx} ${(cy-r).toFixed(1)} A ${r} ${r} 0 1 1 ${cx} ${(cy+r).toFixed(1)} A ${(r*0.5).toFixed(1)} ${r} 0 1 0 ${cx} ${(cy-r).toFixed(1)} Z`;
+    const sunWord=polar==='day'?'MIDNIGHT SUN':polar==='night'?'POLAR NIGHT':isDay?'SUNSET':'SUNRISE';
+    const sunTime=polar?'':(isDay?fmt(ssMin):fmt(srMin));
     return html`
       <div class="arcbox">
-        <svg viewBox="0 0 288 84" style="width:100%;display:block" aria-hidden="true">
+        <svg viewBox="0 0 288 82" style="width:100%;display:block" aria-hidden="true">
+          <defs>
+            <linearGradient id="arcSunG" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#FFC763"/><stop offset="1" stop-color="#EF6B52"/>
+            </linearGradient>
+            <mask id="arcBite">
+              <rect x="0" y="0" width="288" height="82" fill="white"/>
+              <circle cx=${(sx+4.6).toFixed(1)} cy=${(sy-3).toFixed(1)} r="6.2" fill="black"/>
+            </mask>
+          </defs>
           <path d=${seg(0,1)} fill="none" stroke="var(--edge2)" stroke-width="2"/>
           ${nowT>0&&html`<path d=${seg(0,nowT)} fill="none" stroke="var(--cy)" stroke-width="3" stroke-linecap="round"/>`}
           ${isDay?html`
-            <circle cx=${sx} cy=${sy} r="11" fill="none" stroke="var(--amber)" stroke-opacity=".32"/>
-            <circle cx=${sx} cy=${sy} r="7.5" fill="var(--amber)"/>
+            <circle cx=${sx} cy=${sy} r="11.5" fill="var(--amber)" fill-opacity=".1"/>
+            <circle cx=${sx} cy=${sy} r="8.6" fill="var(--amber)" fill-opacity=".18"/>
+            <circle cx=${sx} cy=${sy} r="6.6" fill="url(#arcSunG)"/>
           `:html`
-            <path d=${cres(sx,sy,7.5)} class="moon" transform=${'rotate(20 '+sx+' '+sy+')'}/>
+            <circle cx=${sx} cy=${sy} r="10.5" class="moon" fill-opacity=".1"/>
+            <circle cx=${sx} cy=${sy} r="6.6" class="moon" mask="url(#arcBite)"/>
+            <circle cx=${(sx+13).toFixed(1)} cy=${(sy-9).toFixed(1)} r="1" class="moon" fill-opacity=".65"/>
+            <circle cx=${(sx-11).toFixed(1)} cy=${(sy-13).toFixed(1)} r=".7" class="moon" fill-opacity=".45"/>
           `}
-          <text x="144" y="58" text-anchor="middle" class="arclbl">${sunLine}</text>
-          <text x="144" y="72" text-anchor="middle" class="arclbl">${cutMin<=0?'FASTING — WINDOW CLOSED':cutStr+' LEFT IN THE WINDOW'}</text>
+          <text x="144" y="62" text-anchor="middle" class="arcsun">${sunWord}${sunTime&&html`<tspan class="t2" dx="5">${sunTime}</tspan>`}</text>
         </svg>
       </div>`;
   })();
@@ -2289,7 +2295,7 @@ function App(){
       <div class="hdr">
         <div class="hrow">
           <div class="logo">
-            <div class="core"><${SunMark} size=${36} line=${true} sea=${profile==='nereid'}/></div>
+            <div class="core"><${SunMark} size=${36} line=${true}/></div>
             <div><h1>${P.app}</h1><div class="sub">${P.sub}</div></div>
 </div>
           <button class="lockb" onClick=${()=>{setAuthed(false);setPinBuf('');setPinMode('enter');}}>LOCK</button>
