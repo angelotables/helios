@@ -308,10 +308,13 @@
   .fuelfoot .wt{font-family:var(--mono);font-size:11px;color:var(--amber);text-align:right}
   .fuelfoot .wt small{display:block;font-size:9.5px;color:var(--dim2);margin-top:2px}
   .wrap>.panel:nth-child(2){animation-delay:.04s}.wrap>.panel:nth-child(3){animation-delay:.08s}.wrap>.panel:nth-child(4){animation-delay:.12s}
-  .moon{fill:#D6DAEE}
-  body.sea .moon{fill:#7E8CAC}
+  .moon{fill:#F3DFA6}
+  body.sea .moon{fill:#DCA94F}
   .arcsun{font-family:var(--mono);font-size:8px;letter-spacing:.26em;fill:var(--dim2)}
   .arcsun .t2{fill:var(--dim);font-weight:600;letter-spacing:.12em}
+  .arcbox{cursor:pointer}
+  .wxtemp{font-family:var(--mono);font-size:14px;font-weight:700;fill:var(--txt)}
+  body.sea .wxtemp{fill:#12403A}
   /* brand sun mark replaces the old glowing dot */
   .core{width:36px;height:36px;background:none;box-shadow:none;animation:none;display:flex;align-items:center;justify-content:center}
   .core svg{animation:sunbeat 4.5s ease-in-out infinite}
@@ -1394,6 +1397,23 @@ function App(){
   })();
   const last7=ledgerDays.slice(-7);
   const consistPct=Math.round(ledgerDays.filter(hasFuel).length/ledgerDays.length*100);
+  // ---- tap the arc: swap the sun line for live weather (Open-Meteo, no key) and back ----
+  const [arcMode,setArcMode]=useState('sun');
+  const [wx,setWx]=useState(null);
+  async function fetchWx(){
+    try{
+      const lat=geo?geo.lat:39, lng=geo?geo.lng:(-new Date().getTimezoneOffset()/4);
+      const fah=unit==='lb';
+      const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lng+'&current=temperature_2m,weather_code'+(fah?'&temperature_unit=fahrenheit':''));
+      const j=await r.json();
+      setWx({t:Math.round(j.current.temperature_2m),code:j.current.weather_code,at:Date.now()});
+    }catch(e){setWx({err:1,at:Date.now()});}
+  }
+  const toggleArc=()=>{
+    const nm=arcMode==='sun'?'wx':'sun';
+    setArcMode(nm);
+    if(nm==='wx'&&(!wx||wx.err||Date.now()-wx.at>600000))fetchWx();
+  };
   // ---- sky arc: sun rides sunrise→sunset, moon rides the night; real times for the device's location ----
   const solarArc=(()=>{
     const bez=(tt)=>[(1-tt)*(1-tt)*16+2*(1-tt)*tt*144+tt*tt*272,(1-tt)*(1-tt)*76+2*(1-tt)*tt*(-12)+tt*tt*76];
@@ -1408,12 +1428,30 @@ function App(){
     const p2=(x)=>String(x).padStart(2,'0'), fmt=(m)=>p2(Math.floor(m/60))+':'+p2(m%60);
     const sunWord=polar==='day'?'MIDNIGHT SUN':polar==='night'?'POLAR NIGHT':isDay?'SUNSET':'SUNRISE';
     const sunTime=polar?'':(isDay?fmt(ssMin):fmt(srMin));
+    const code=wx&&!wx.err?wx.code:null;
+    const rain=code!==null&&((code>=51&&code<=67)||(code>=80&&code<=82)||code>=95);
+    const snow=code!==null&&((code>=71&&code<=77)||code===85||code===86);
+    const clear=code===0||code===1;
+    const IC={fill:'none',stroke:'var(--dim)','stroke-width':'1.7','stroke-linecap':'round','stroke-linejoin':'round'};
+    const wxIcon=clear?(isDay?html`
+        <g ...${IC}><circle cx="12" cy="13" r="4"/><path d="M12 5.5v2M12 18.5v2M4.5 13h2M17.5 13h2M6.7 7.7l1.4 1.4M15.9 16.9l1.4 1.4M17.3 7.7l-1.4 1.4M8.1 16.9l-1.4 1.4"/></g>
+      `:html`
+        <g ...${IC}><path d="M9.5 5.5 A7 7 0 1 0 18.5 14.5 A5.6 5.6 0 0 1 9.5 5.5 Z"/></g>
+      `):html`
+        <g ...${IC}>
+          <path d="M7.5 15.5h8.6a3.4 3.4 0 0 0 0-6.8 5 5 0 0 0-9.6 1.3 2.9 2.9 0 0 0 1 5.5Z"/>
+          ${rain&&html`<g stroke="#5FB8E8"><path d="M8.5 18.2l-.9 2.2M12.3 18.2l-.9 2.2M16.1 18.2l-.9 2.2"/></g>`}
+          ${snow&&html`<g stroke="#B9D7EE"><path d="M8.3 18.6v.01M12.1 19.6v.01M15.9 18.6v.01"/></g>`}
+        </g>`;
     return html`
-      <div class="arcbox">
+      <div class="arcbox" onClick=${toggleArc}>
         <svg viewBox="0 0 288 82" style="width:100%;display:block" aria-hidden="true">
           <defs>
             <linearGradient id="arcSunG" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0" stop-color="#FFC763"/><stop offset="1" stop-color="#EF6B52"/>
+            </linearGradient>
+            <linearGradient id="arcProg" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#FFC65C"/><stop offset="1" stop-color="#FF6B57"/>
             </linearGradient>
             <mask id="arcBite">
               <rect x="0" y="0" width="288" height="82" fill="white"/>
@@ -1421,7 +1459,7 @@ function App(){
             </mask>
           </defs>
           <path d=${seg(0,1)} fill="none" stroke="var(--edge2)" stroke-width="2"/>
-          ${nowT>0&&html`<path d=${seg(0,nowT)} fill="none" stroke="var(--cy)" stroke-width="3" stroke-linecap="round"/>`}
+          ${nowT>0&&html`<path d=${seg(0,nowT)} fill="none" stroke="url(#arcProg)" stroke-width="3" stroke-linecap="round"/>`}
           ${isDay?html`
             <circle cx=${sx} cy=${sy} r="11.5" fill="var(--amber)" fill-opacity=".1"/>
             <circle cx=${sx} cy=${sy} r="8.6" fill="var(--amber)" fill-opacity=".18"/>
@@ -1432,7 +1470,15 @@ function App(){
             <circle cx=${(sx+13).toFixed(1)} cy=${(sy-9).toFixed(1)} r="1" class="moon" fill-opacity=".65"/>
             <circle cx=${(sx-11).toFixed(1)} cy=${(sy-13).toFixed(1)} r=".7" class="moon" fill-opacity=".45"/>
           `}
-          <text x="144" y="62" text-anchor="middle" class="arcsun">${sunWord}${sunTime&&html`<tspan class="t2" dx="5">${sunTime}</tspan>`}</text>
+          ${arcMode==='wx'?html`
+            ${wx&&!wx.err?html`
+              <g transform="translate(104 41)">${wxIcon}</g>
+              <text x="136" y="58" class="wxtemp">${wx.t}°${unit==='lb'?'F':'C'}</text>
+            `:html`
+              <text x="144" y="62" text-anchor="middle" class="arcsun">${wx&&wx.err?'WEATHER UNAVAILABLE':'READING THE SKY…'}</text>`}
+          `:html`
+            <text x="144" y="62" text-anchor="middle" class="arcsun">${sunWord}${sunTime&&html`<tspan class="t2" dx="5">${sunTime}</tspan>`}</text>
+          `}
         </svg>
       </div>`;
   })();
