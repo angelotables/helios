@@ -308,6 +308,21 @@
   .fuelfoot .wt{font-family:var(--mono);font-size:11px;color:var(--amber);text-align:right}
   .fuelfoot .wt small{display:block;font-size:9.5px;color:var(--dim2);margin-top:2px}
   .wrap>.panel:nth-child(2){animation-delay:.04s}.wrap>.panel:nth-child(3){animation-delay:.08s}.wrap>.panel:nth-child(4){animation-delay:.12s}
+  .moon{fill:#D6DAEE}
+  body.sea .moon{fill:#7E8CAC}
+  .suntime{font-family:var(--mono);font-size:9px;letter-spacing:.06em;fill:var(--dim2)}
+  .suntime.on{fill:var(--cy)}
+  /* brand sun mark replaces the old glowing dot */
+  .core{width:36px;height:36px;background:none;box-shadow:none;animation:none;display:flex;align-items:center;justify-content:center}
+  .core svg{animation:sunbeat 4.5s ease-in-out infinite}
+  @keyframes sunbeat{0%,100%{filter:drop-shadow(0 0 9px rgba(255,122,80,.4))}50%{filter:drop-shadow(0 0 17px rgba(255,122,80,.78))}}
+  body.sea .core svg{animation:sunbeatSea 4.5s ease-in-out infinite}
+  @keyframes sunbeatSea{0%,100%{filter:drop-shadow(0 0 9px rgba(15,168,143,.4))}50%{filter:drop-shadow(0 0 17px rgba(15,168,143,.7))}}
+  .lsun{display:flex;justify-content:center;margin-bottom:20px;animation:sunbeat 4s ease-in-out infinite}
+  body.sea .lsun{animation:sunbeatSea 4s ease-in-out infinite}
+  .lcard h1{font-family:var(--mono);letter-spacing:.2em;font-weight:700}
+  .lcard .divg{height:1px;max-width:200px;margin:12px auto 0;background:linear-gradient(90deg,transparent,rgba(255,198,92,.5),rgba(255,107,87,.5),transparent)}
+  body.sea .lcard .divg{background:linear-gradient(90deg,transparent,rgba(255,143,191,.55),rgba(15,168,143,.45),transparent)}
 </style>
 </head>
 <body>
@@ -377,6 +392,37 @@ const todayKey=()=>dkey(new Date());
 const nowHM=()=>{const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');};
 const emptyDay=()=>({meals:[],supps:{},inj:null,water:0});
 
+// The Dawn logomark: gradient sun disc with the heartbeat pulse across it.
+const SunMark=({size=88,line=true,sea=false})=>{
+  const c0=sea?'#5FE8C9':'#FFC763', c1=sea?'#FF8FBF':'#EF6B52', ln=sea?'#0C4B41':'#2A130C', gid='dm'+(sea?'S':'H');
+  return html`
+    <svg width=${size} height=${size} viewBox="0 0 100 100" aria-hidden="true" style="display:block">
+      <defs><linearGradient id=${gid} x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color=${c0}/><stop offset="1" stop-color=${c1}/>
+      </linearGradient></defs>
+      <circle cx="50" cy="50" r="34" fill=${'url(#'+gid+')'}/>
+      ${line&&html`<path d="M15 50 L38 50 L43 58 L50 36 L57 64 L62 50 L85 50" fill="none" stroke=${ln} stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>`}
+    </svg>`;
+};
+
+// Sunrise / sunset for a date + location, in the device's local time (NOAA sunrise equation).
+function sunTimes(date,lat,lng){
+  const rad=Math.PI/180, dayMs=86400000;
+  const jd=date.getTime()/dayMs+2440587.5;
+  const n=Math.round(jd-2451545.0+0.0008);
+  const Jstar=n-lng/360;
+  const M=(357.5291+0.98560028*Jstar)%360, Mr=M*rad;
+  const C=1.9148*Math.sin(Mr)+0.02*Math.sin(2*Mr)+0.0003*Math.sin(3*Mr);
+  const lam=(M+C+180+102.9372)%360, lamr=lam*rad;
+  const Jtransit=2451545.0+Jstar+0.0053*Math.sin(Mr)-0.0069*Math.sin(2*lamr);
+  const delta=Math.asin(Math.sin(lamr)*Math.sin(23.44*rad));
+  const cosH=(Math.sin(-0.833*rad)-Math.sin(lat*rad)*Math.sin(delta))/(Math.cos(lat*rad)*Math.cos(delta));
+  if(cosH>=1)return{polar:'night'};
+  if(cosH<=-1)return{polar:'day'};
+  const H=Math.acos(cosH)/rad;
+  return{rise:new Date((Jtransit-H/360-2440587.5)*dayMs), set:new Date((Jtransit+H/360-2440587.5)*dayMs)};
+}
+
 const NavIcon=({id})=>{
   const P2={fill:'none',stroke:'currentColor','stroke-width':'1.8','stroke-linecap':'round','stroke-linejoin':'round'};
   return html`<svg class="ti" viewBox="0 0 24 24" aria-hidden="true">
@@ -397,6 +443,15 @@ function App(){
   const [firstPin,setFirstPin]=useState('');
   const [pinBad,setPinBad]=useState(false);
   const [busy,setBusy]=useState(false);
+  // Location for sunrise/sunset — asked once, cached; falls back to timezone estimate if unavailable.
+  const [geo,setGeo]=useState(()=>{try{return JSON.parse(localStorage.getItem('helios-geo')||'null');}catch(e){return null;}});
+  useEffect(()=>{
+    if(geo||!navigator.geolocation||localStorage.getItem('helios-geo-skip'))return;
+    try{localStorage.setItem('helios-geo-skip','1');}catch(e){}
+    navigator.geolocation.getCurrentPosition(
+      p=>{const g={lat:+p.coords.latitude.toFixed(3),lng:+p.coords.longitude.toFixed(3)};setGeo(g);try{localStorage.setItem('helios-geo',JSON.stringify(g));}catch(e){}},
+      ()=>{},{timeout:8000,maximumAge:21600000});
+  },[]);
   const [meta,setMeta]=useState(null);      // {pin,targets,foods,supps,weightLog,injLog}
   const [day,setDay]=useState(null);        // today's doc
   const [dayLoaded,setDayLoaded]=useState(false);
@@ -872,7 +927,7 @@ function App(){
   if(!profile){
     return html`
       <div class="login">
-        <div class="lcore"></div>
+        <div class="lsun"><${SunMark} size=${86} line=${true}/></div>
         <div class="profiles">
           <div style="text-align:center;margin-bottom:4px">
             <h1 style="font-size:24px">SELECT PROFILE</h1>
@@ -893,11 +948,12 @@ function App(){
     const dots=[0,1,2,3].map(i=>html`<div class=${'dot'+(pinBuf.length>i?' f':'')} key=${i}></div>`);
     return html`
       <div class="login">
-        <div class="lcore" style=${profile==='nereid'?{fontSize:'34px',display:'flex',alignItems:'center',justifyContent:'center'}:{}}></div>
+        <div class="lsun"><${SunMark} size=${88} line=${true} sea=${profile==='nereid'}/></div>
         <div class="lcard">
-          <h1 style="font-size:26px">${P.app}</h1>
-          <div class="sub" style="margin-top:4px">${P.sub}</div>
-          <div class="dim mt12" style="font-family:var(--mono);font-size:12px">
+          <h1 style="font-size:27px">${P.app}</h1>
+          <div class="sub" style="margin-top:5px">${P.sub}</div>
+          <div class="divg"></div>
+          <div class="dim mt12" style="font-family:var(--mono);font-size:11px;letter-spacing:.14em">
             ${busy?'SIGNING IN…':'ENTER ACCESS CODE'}
             ${pinBad&&html`<div style="color:var(--red);margin-top:5px">ACCESS DENIED — RETRY</div>`}
 </div>
@@ -1344,29 +1400,37 @@ function App(){
   })();
   const last7=ledgerDays.slice(-7);
   const consistPct=Math.round(ledgerDays.filter(hasFuel).length/ledgerDays.length*100);
-  // ---- solar arc: the sun crosses the full day 12AM → 12AM, feeding cutoff marked on the path ----
+  // ---- sky arc: sun rides sunrise→sunset, moon rides the night; real times for the device's location ----
   const solarArc=(()=>{
-    const A0=0,A1=24*60;
-    const nowMin=now.getHours()*60+now.getMinutes();
-    const t=Math.max(0,Math.min(1,(nowMin-A0)/(A1-A0)));
-    const cutT=Math.max(0,Math.min(1,(((+cutHM[0]||21)*60+(+cutHM[1]||0))-A0)/(A1-A0)));
     const bez=(tt)=>[(1-tt)*(1-tt)*16+2*(1-tt)*tt*144+tt*tt*272,(1-tt)*(1-tt)*76+2*(1-tt)*tt*(-12)+tt*tt*76];
-    const seg=(from,to)=>{let p3='M'+bez(from).map(v=>v.toFixed(1)).join(' ');for(let i=1;i<=24;i++){p3+=' L'+bez(from+(to-from)*i/24).map(v=>v.toFixed(1)).join(' ');}return p3;};
-    const [sx,sy]=bez(t);const [kx,ky]=bez(cutT);
-    const closed=cutMin<=0;
+    const seg=(from,to)=>{if(to<=from)return '';const n2=Math.max(2,Math.round((to-from)*48));let p3='M'+bez(from).map(v=>v.toFixed(1)).join(' ');for(let i=1;i<=n2;i++){p3+=' L'+bez(from+(to-from)*i/n2).map(v=>v.toFixed(1)).join(' ');}return p3;};
+    const st=sunTimes(now,geo?geo.lat:39,geo?geo.lng:(-new Date().getTimezoneOffset()/4));
+    let srMin=390,ssMin=1200; const polar=st.polar||null;
+    if(st.rise&&st.set){srMin=st.rise.getHours()*60+st.rise.getMinutes();ssMin=st.set.getHours()*60+st.set.getMinutes();}
+    const nowMin=now.getHours()*60+now.getMinutes();
+    const isDay=polar==='day'||(polar!=='night'&&nowMin>=srMin&&nowMin<ssMin);
+    const tOf=(m)=>Math.max(0,Math.min(1,m/1440));
+    const nowT=tOf(nowMin),srT=tOf(srMin),ssT=tOf(ssMin);
+    const [sx,sy]=bez(nowT),[rx,ry]=bez(srT),[stx,sty]=bez(ssT);
+    const p2=(x)=>String(x).padStart(2,'0'), fmt=(m)=>p2(Math.floor(m/60))+':'+p2(m%60);
+    const cres=(cx,cy,r)=>`M ${cx} ${(cy-r).toFixed(1)} A ${r} ${r} 0 1 1 ${cx} ${(cy+r).toFixed(1)} A ${(r*0.5).toFixed(1)} ${r} 0 1 0 ${cx} ${(cy-r).toFixed(1)} Z`;
     return html`
       <div class="arcbox">
-        <svg viewBox="0 0 288 96" style="width:100%;display:block" aria-hidden="true">
+        <svg viewBox="0 0 288 100" style="width:100%;display:block" aria-hidden="true">
           <path d=${seg(0,1)} fill="none" stroke="var(--edge2)" stroke-width="2"/>
-          ${t>0&&html`<path d=${seg(0,t)} fill="none" stroke="var(--cy)" stroke-width="3" stroke-linecap="round"/>`}
-          <line x1=${kx} y1=${ky-6} x2=${kx} y2=${ky+6} stroke=${closed?'var(--red)':'var(--amber)'} stroke-width="2" transform=${`rotate(${(cutT-0.5)*70} ${kx} ${ky})`}/>
-          <circle cx=${sx} cy=${sy} r="7" fill="var(--amber)"/>
-          <circle cx=${sx} cy=${sy} r="11" fill="none" stroke="var(--amber)" stroke-opacity=".35"/>
-          <text x="16" y="93" class="arclbl">12AM</text>
-          <text x="272" y="93" text-anchor="end" class="arclbl">12AM</text>
-          <text x=${kx} y=${ky-13} text-anchor="middle" class=${closed?'arccut':'arclbl'}>${closed?'CLOSED':(T.cutoff||'21:00')}</text>
+          ${!polar&&html`<path d=${seg(srT,ssT)} fill="none" stroke="var(--cy)" stroke-width="3.2" stroke-linecap="round"/>`}
+          ${!polar&&html`<circle cx=${rx} cy=${ry} r="2.3" fill="var(--cy)"/>`}
+          ${!polar&&html`<circle cx=${stx} cy=${sty} r="2.3" fill="var(--cy)"/>`}
+          ${isDay?html`
+            <circle cx=${sx} cy=${sy} r="11" fill="none" stroke="var(--amber)" stroke-opacity=".32"/>
+            <circle cx=${sx} cy=${sy} r="7.5" fill="var(--amber)"/>
+          `:html`
+            <path d=${cres(sx,sy,7.5)} class="moon" transform=${'rotate(20 '+sx+' '+sy+')'}/>
+          `}
+          <text x="14" y="96" class=${'suntime'+(isDay?'':' on')}>&#9650; ${polar==='night'?'--:--':fmt(srMin)}</text>
+          <text x="274" y="96" text-anchor="end" class=${'suntime'+(isDay?' on':'')}>${polar==='day'?'--:--':fmt(ssMin)} &#9660;</text>
           <text x="144" y="60" text-anchor="middle" class="arcnow">${nowHM()}</text>
-          <text x="144" y="74" text-anchor="middle" class="arclbl">${closed?'FASTING — SEE YOU AT SUNRISE':cutStr+' LEFT IN THE WINDOW'}</text>
+          <text x="144" y="74" text-anchor="middle" class="arclbl">${cutMin<=0?'FASTING — WINDOW CLOSED':cutStr+' LEFT IN THE WINDOW'}</text>
         </svg>
       </div>`;
   })();
@@ -2229,7 +2293,7 @@ function App(){
       <div class="hdr">
         <div class="hrow">
           <div class="logo">
-            <div class="core"></div>
+            <div class="core"><${SunMark} size=${36} line=${true} sea=${profile==='nereid'}/></div>
             <div><h1>${P.app}</h1><div class="sub">${P.sub}</div></div>
 </div>
           <button class="lockb" onClick=${()=>{setAuthed(false);setPinBuf('');setPinMode('enter');}}>LOCK</button>
