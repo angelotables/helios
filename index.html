@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>HELIOS — Health OS</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2305080F'/><circle cx='50' cy='50' r='26' fill='none' stroke='%2338E1FF' stroke-width='6'/><circle cx='50' cy='50' r='10' fill='%2338E1FF'/></svg>" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%23FFC763'/><stop offset='1' stop-color='%23EF6B52'/></linearGradient></defs><rect width='100' height='100' rx='22' fill='%23FBF3E7'/><circle cx='50' cy='50' r='23' fill='url(%23g)'/><path d='M15 50 L38 50 L42.5 55 L50 35 L57.5 60 L62.5 50 L85 50' fill='none' stroke='%2316120E' stroke-width='5.5' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
 <link rel="apple-touch-icon" href="apple-touch-icon.png" />
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
 <link rel="manifest" href="manifest.json" />
@@ -1344,9 +1344,9 @@ function App(){
   })();
   const last7=ledgerDays.slice(-7);
   const consistPct=Math.round(ledgerDays.filter(hasFuel).length/ledgerDays.length*100);
-  // ---- solar arc: the sun crosses the day 06:00 → 23:00, feeding cutoff marked on the path ----
+  // ---- solar arc: the sun crosses the full day 12AM → 12AM, feeding cutoff marked on the path ----
   const solarArc=(()=>{
-    const A0=6*60,A1=23*60;
+    const A0=0,A1=24*60;
     const nowMin=now.getHours()*60+now.getMinutes();
     const t=Math.max(0,Math.min(1,(nowMin-A0)/(A1-A0)));
     const cutT=Math.max(0,Math.min(1,(((+cutHM[0]||21)*60+(+cutHM[1]||0))-A0)/(A1-A0)));
@@ -1362,8 +1362,9 @@ function App(){
           <line x1=${kx} y1=${ky-6} x2=${kx} y2=${ky+6} stroke=${closed?'var(--red)':'var(--amber)'} stroke-width="2" transform=${`rotate(${(cutT-0.5)*70} ${kx} ${ky})`}/>
           <circle cx=${sx} cy=${sy} r="7" fill="var(--amber)"/>
           <circle cx=${sx} cy=${sy} r="11" fill="none" stroke="var(--amber)" stroke-opacity=".35"/>
-          <text x="16" y="93" class="arclbl">06:00</text>
-          <text x="272" y="93" text-anchor="end" class=${closed?'arccut':'arclbl'}>${closed?'WINDOW CLOSED':'CUTOFF '+(T.cutoff||'21:00')}</text>
+          <text x="16" y="93" class="arclbl">12AM</text>
+          <text x="272" y="93" text-anchor="end" class="arclbl">12AM</text>
+          <text x=${kx} y=${ky-13} text-anchor="middle" class=${closed?'arccut':'arclbl'}>${closed?'CLOSED':(T.cutoff||'21:00')}</text>
           <text x="144" y="60" text-anchor="middle" class="arcnow">${nowHM()}</text>
           <text x="144" y="74" text-anchor="middle" class="arclbl">${closed?'FASTING — SEE YOU AT SUNRISE':cutStr+' LEFT IN THE WINDOW'}</text>
         </svg>
