@@ -1,0 +1,8 @@
+# macOS
+.DS_Store
+
+# Local tooling / scratch
+.claude/
+
+# Sensitive — Manager Book backup with employee PII + PINs. Never commit or deploy.
+gyrocity-managers-backup-*.json

@@ -1,0 +1,2107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>HELIOS — Health OS</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2305080F'/><circle cx='50' cy='50' r='26' fill='none' stroke='%2338E1FF' stroke-width='6'/><circle cx='50' cy='50' r='10' fill='%2338E1FF'/></svg>" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+<link rel="manifest" href="manifest.json" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="theme-color" content="#141019" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --void:#141019; --panel:#1D1721; --panel2:#251B27; --edge:#332734; --edge2:#4A3947;
+    --cy:#FF7A50; --cy2:#F0603A; --amber:#FFC65C; --red:#FF5D6C; --green:#3ECF8E;
+    --txt:#F5EEE7; --dim:#A08E97; --dim2:#5E4C58;
+    --sun:linear-gradient(135deg,#FFC65C 0%,#FF6B57 100%);
+    --disp:'Inter',sans-serif; --mono:'Sora',sans-serif;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+  :focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:6px}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+  }
+  body{margin:0;background:var(--void);color:var(--txt);font-family:var(--disp);font-size:15.5px;min-height:100vh;
+    font-variant-numeric:tabular-nums;
+    background-image:
+      radial-gradient(900px 480px at 75% -12%,rgba(255,107,87,.14),transparent 62%),
+      radial-gradient(700px 420px at -12% 108%,rgba(255,198,92,.08),transparent 60%);
+    background-attachment:fixed}
+  .wrap{max-width:660px;margin:0 auto;padding:14px 14px calc(90px + env(safe-area-inset-bottom))}
+  .mono{font-family:var(--mono)}
+
+  /* header */
+  .hdr{padding:calc(16px + env(safe-area-inset-top)) 16px 12px;max-width:660px;margin:0 auto}
+  .hrow{display:flex;justify-content:space-between;align-items:center}
+  .logo{display:flex;align-items:center;gap:10px}
+  .core{width:34px;height:34px;border-radius:50%;background:var(--sun);position:relative;
+    box-shadow:0 0 22px rgba(255,122,80,.5);animation:corepulse 4s ease-in-out infinite}
+  @keyframes corepulse{0%,100%{box-shadow:0 0 14px rgba(255,122,80,.45),inset 0 0 10px rgba(255,122,80,.3)}50%{box-shadow:0 0 26px rgba(255,122,80,.8),inset 0 0 16px rgba(255,122,80,.5)}}
+  h1{margin:0;font-family:var(--mono);font-size:21px;font-weight:700;letter-spacing:.16em;color:#F7EFE8}
+  .sub{font-family:var(--mono);font-size:9.5px;letter-spacing:.3em;color:var(--dim)}
+  .lockb{background:rgba(255,122,80,.07);border:1px solid var(--edge2);color:var(--cy);border-radius:10px;padding:8px 13px;
+    font-family:var(--mono);font-size:11px;letter-spacing:.12em;cursor:pointer;transition:all .2s}
+  .lockb:active{transform:scale(.94)}
+  .datebar{display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-family:var(--mono);font-size:11px;color:var(--dim)}
+  .tminus{color:var(--amber);text-shadow:0 0 12px rgba(255,180,84,.35)}
+
+  /* tabs — fixed bottom navigation */
+  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:60;display:flex;justify-content:space-around;gap:0;
+    padding:8px 6px calc(8px + env(safe-area-inset-bottom));
+    background:rgba(20,16,25,.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border-top:1px solid var(--edge)}
+  .tabs button{background:transparent;color:var(--dim);border:none;border-radius:14px;padding:6px 10px;min-width:52px;
+    font-size:9px;font-weight:700;letter-spacing:.1em;cursor:pointer;white-space:nowrap;font-family:var(--mono);transition:all .18s;
+    display:flex;flex-direction:column;align-items:center;gap:3px}
+  .tabs button .ti{width:22px;height:22px;display:block;margin:0 auto;color:currentColor;opacity:.55;transition:opacity .18s,transform .18s}
+  .tabs button.on{color:var(--cy)}
+  .tabs button.on .ti{opacity:1;transform:translateY(-1px)}
+  .tabs button.on::after{content:'';width:14px;height:3px;border-radius:2px;background:var(--sun);margin-top:1px}
+
+  /* panels */
+  .panel{background:linear-gradient(165deg,var(--panel) 0%,var(--panel2) 100%);border:1px solid var(--edge);border-radius:20px;
+    padding:16px 17px;margin-bottom:14px;position:relative;animation:boot .28s ease both}
+  @keyframes boot{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .panel::before{content:'';position:absolute;top:-1px;left:18px;right:18px;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(255,198,92,.45),rgba(255,107,87,.45),transparent)}
+  .ptitle{font-family:var(--mono);font-size:10px;letter-spacing:.24em;color:var(--dim);margin-bottom:11px;display:flex;justify-content:space-between;align-items:baseline}
+  .ptitle b{color:var(--cy);font-weight:600}
+
+  /* rings */
+  .rings{display:flex;justify-content:space-around;gap:8px}
+  .ringbox{text-align:center}
+  .ringbox svg{transform:rotate(-90deg)}
+  .ringv{font-family:var(--mono);font-size:19px;font-weight:800;fill:#F7EFE8}
+  .ringl{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;fill:var(--dim)}
+  .ringt{font-family:var(--mono);font-size:9px;fill:var(--dim2)}
+  .minibars{display:flex;gap:10px;margin-top:13px}
+  .mb{flex:1}
+  .mb .l{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--dim);margin-bottom:4px}
+  .mb .track{height:5px;background:#0A1524;border-radius:3px;overflow:hidden;border:1px solid var(--edge)}
+  .mb .fill{height:100%;border-radius:3px;transition:width .5s ease}
+
+  .statgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+  .showcase{position:relative;border-radius:20px;padding:18px 16px;margin-bottom:14px;overflow:hidden;text-align:center;
+    background:linear-gradient(165deg,var(--panel),var(--panel2));border:1.5px solid transparent;
+    background-clip:padding-box}
+  .showcase::before{content:'';position:absolute;inset:-2px;z-index:-1;border-radius:22px;
+    background:linear-gradient(120deg,#FF8FBF,#FFC65C,#FF6B57,#FF8FBF);background-size:300% 300%;
+    animation:marquee 5s linear infinite}
+  @keyframes marquee{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+  .showcase .swho{font-family:var(--mono);font-size:10px;letter-spacing:.3em;color:var(--dim);margin-bottom:2px}
+  .showcase .stitle{font-family:var(--mono);font-size:15px;font-weight:800;letter-spacing:.1em;
+    background:linear-gradient(90deg,#FF8FBF,#FF6B57,#FFC65C);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .cdrow{display:flex;justify-content:center;gap:8px;margin:13px 0 6px}
+  .cd{min-width:60px;background:rgba(255,143,191,.07);border:1px solid var(--edge);border-radius:13px;padding:9px 6px}
+  .cd b{display:block;font-family:var(--mono);font-size:26px;font-weight:800}
+  .cd span{font-size:9.5px;letter-spacing:.18em;color:var(--dim)}
+  .sline{font-size:12.5px;color:var(--dim);margin-top:7px;line-height:1.5}
+  .stat{background:rgba(255,122,80,.04);border:1px solid var(--edge);border-radius:11px;padding:11px 13px}
+  .stat .k{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--dim)}
+  .stat .v{font-family:var(--mono);font-size:19px;font-weight:800;color:#F7EFE8;margin-top:3px}
+  .stat .v small{font-size:11px;color:var(--dim);font-weight:400}
+  .stat.warn .v{color:var(--amber)} .stat.good .v{color:var(--green)} .stat.bad .v{color:var(--red)}
+
+  /* buttons & inputs */
+  .btn{border:1px solid var(--cy2);border-radius:11px;padding:12px 16px;font-size:14px;font-weight:700;letter-spacing:.1em;cursor:pointer;
+    color:var(--cy);background:rgba(255,122,80,.08);font-family:var(--mono);transition:all .15s;
+    box-shadow:0 0 14px -6px rgba(255,122,80,.6)}
+  .btn:active{transform:scale(.96);background:rgba(255,122,80,.16)}
+  .btn.solid{background:var(--sun);color:#2A130C;border-color:transparent;box-shadow:0 8px 22px -8px rgba(255,107,87,.65)}
+  .btn.amber{border-color:#B07E33;color:var(--amber);background:rgba(255,180,84,.07);box-shadow:0 0 14px -6px rgba(255,180,84,.5)}
+  .btn.red{border-color:#8f3b3b;color:var(--red);background:rgba(255,93,93,.06);box-shadow:none}
+  .btn.wide{width:100%}
+  .btn[disabled]{opacity:.45}
+  .ghost{background:none;border:none;color:var(--dim);font-size:13px;cursor:pointer;font-family:var(--mono)}
+  input,select{width:100%;border:1px solid var(--edge2);border-radius:10px;padding:11px 12px;font-size:16px;font-family:var(--mono);
+    color:var(--txt);background:#081020;outline:none;transition:all .2s}
+  input:focus{border-color:var(--cy);box-shadow:0 0 0 3px rgba(255,122,80,.12)}
+  .row{display:flex;gap:8px}.row>*{flex:1}
+  .lbl{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--dim);margin:2px 0 6px}
+
+  /* food picks */
+  .fpick{display:flex;width:100%;align-items:center;gap:12px;background:rgba(13,23,40,.75);border:1px solid var(--edge);border-radius:13px;
+    padding:11px 13px;margin-bottom:8px;cursor:pointer;text-align:left;font-family:var(--disp);color:var(--txt);transition:all .15s}
+  .fpick:active{transform:scale(.975);border-color:var(--cy2)}
+  .fpick .ico{width:42px;height:42px;min-width:42px;border-radius:11px;background:rgba(255,122,80,.06);border:1px solid var(--edge);
+    display:flex;align-items:center;justify-content:center;font-size:22px}
+  .fpick .nm{flex:1;font-size:15px;font-weight:600}
+  .fpick .mac{font-family:var(--mono);font-size:10.5px;color:var(--dim)}
+  .fpick .kc{font-family:var(--mono);font-size:14px;font-weight:800;color:var(--cy)}
+  .meal{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid var(--edge);font-size:14.5px;align-items:baseline}
+  .meal .t{font-family:var(--mono);font-size:10.5px;color:var(--dim)}
+  .meal .m{font-family:var(--mono);font-size:10.5px;color:var(--dim)}
+  .meal .x{background:none;border:none;color:var(--dim2);cursor:pointer;font-size:13px;padding:0 4px}
+
+  /* supplements & injection */
+  .supp{display:flex;width:100%;align-items:center;gap:12px;background:rgba(13,23,40,.75);border:1px solid var(--edge);border-radius:12px;
+    padding:12px 14px;margin-bottom:8px;cursor:pointer;text-align:left;color:var(--txt);font-family:var(--disp);font-size:15px;font-weight:600;transition:all .18s}
+  .supp .box{width:26px;height:26px;min-width:26px;border-radius:8px;border:2px solid var(--edge2);display:flex;align-items:center;justify-content:center;
+    color:#2A130C;font-weight:800;transition:all .18s}
+  .supp.on{border-color:rgba(74,227,160,.4)}
+  .supp.on .box{background:var(--green);border-color:var(--green);box-shadow:0 0 12px rgba(74,227,160,.5)}
+  .supp .del{background:none;border:none;color:var(--dim2);cursor:pointer;font-size:14px}
+  .sitegrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:10px 0}
+  .site{border:1px solid var(--edge2);border-radius:12px;padding:14px 0;background:rgba(13,23,40,.7);color:var(--dim);
+    font-family:var(--mono);font-size:12px;letter-spacing:.1em;cursor:pointer;text-align:center;transition:all .18s}
+  .site.on{color:var(--cy);border-color:var(--cy);background:rgba(255,122,80,.1);box-shadow:0 0 16px -4px rgba(255,122,80,.6)}
+  .site.sugg{border-style:dashed;border-color:var(--amber);color:var(--amber)}
+  .weekstrip{display:flex;gap:6px;margin-top:10px}
+  .wd{flex:1;text-align:center;padding:9px 0;border-radius:9px;border:1px solid var(--edge);font-family:var(--mono);font-size:10px;color:var(--dim)}
+  .wd.hit{color:var(--green);border-color:rgba(74,227,160,.5);background:rgba(74,227,160,.07);box-shadow:0 0 10px -4px rgba(74,227,160,.6)}
+  .wd.today{border-color:var(--cy)}
+
+  /* charts */
+  .spark{width:100%;height:120px}
+  .axis{font-family:var(--mono);font-size:9px;fill:var(--dim2)}
+
+  .toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);
+    background:linear-gradient(135deg,#1690B0,var(--cy2));color:#2A130C;border-radius:999px;padding:11px 24px;font-size:13px;
+    font-family:var(--mono);font-weight:800;box-shadow:0 0 30px rgba(255,122,80,.5);z-index:60;animation:tpop .3s cubic-bezier(.5,1.6,.5,1)}
+  @keyframes tpop{from{opacity:0;transform:translate(-50%,14px) scale(.9)}to{opacity:1;transform:translate(-50%,0)}}
+  .banner{border-radius:11px;padding:11px 14px;font-size:13.5px;margin-bottom:13px;line-height:1.5;font-family:var(--mono)}
+  .banner.err{background:rgba(255,93,93,.08);color:var(--red);border:1px solid rgba(255,93,93,.3)}
+  .dim{color:var(--dim);font-size:13px;line-height:1.55}
+  .empty{text-align:center;color:var(--dim2);font-family:var(--mono);font-size:12px;padding:16px 0;letter-spacing:.1em}
+
+  /* lock screen */
+  .login{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 18px;position:relative;overflow:hidden}
+  .login::before{content:'';position:absolute;width:600px;height:600px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,122,80,.12),transparent 60%);animation:corepulse 4s ease-in-out infinite}
+  .lcore{width:88px;height:88px;border-radius:50%;border:3px solid var(--cy);position:relative;margin-bottom:18px;
+    box-shadow:0 0 40px rgba(255,122,80,.6),inset 0 0 24px rgba(255,122,80,.3);animation:corepulse 3s ease-in-out infinite}
+  .lcore::after{content:'';position:absolute;inset:26px;border-radius:50%;background:var(--cy);box-shadow:0 0 24px var(--cy)}
+  .lcard{position:relative;z-index:1;width:100%;max-width:380px;text-align:center}
+  .dots{display:flex;gap:15px;justify-content:center;margin:18px 0 22px}
+  .dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--edge2);transition:all .15s cubic-bezier(.5,1.6,.5,1)}
+  .dot.f{background:var(--cy);border-color:var(--cy);transform:scale(1.2);box-shadow:0 0 12px rgba(255,122,80,.7)}
+  .dots.bad .dot{border-color:var(--red);animation:shake .32s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+  .pad{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;max-width:270px;margin:0 auto}
+  .key{border:1px solid var(--edge2);border-radius:15px;background:rgba(13,23,40,.8);color:var(--txt);font-size:21px;font-weight:600;
+    padding:15px 0;cursor:pointer;font-family:var(--mono);transition:all .12s}
+  .key:active{transform:scale(.9);background:rgba(255,122,80,.12);border-color:var(--cy)}
+  .key.ghostk{background:transparent;border-color:transparent;font-size:17px;color:var(--dim)}
+
+  /* ---- NEREID: sunlit lagoon (light) ---- */
+  body.sea{--void:#FFF8F0; --panel:#FFFFFF; --panel2:#FFFDF9; --edge:#F0E0D2; --edge2:#E2C9B6;
+    --cy:#0FA88F; --cy2:#0B8871; --txt:#33272A; --dim:#A08E88; --dim2:#D9C8BD;
+    background-image:
+      radial-gradient(800px 420px at 80% -10%,rgba(255,143,191,.12),transparent 60%),
+      radial-gradient(650px 400px at -10% 108%,rgba(255,198,92,.14),transparent 60%)}
+  body.sea h1{color:#3A2A2E;text-shadow:none}
+  body.sea .sub,body.sea .tag{color:#B99C93}
+  body.sea .panel{box-shadow:0 10px 30px -16px rgba(120,70,50,.25);border-color:var(--edge)}
+  body.sea .panel::before{background:linear-gradient(90deg,transparent,rgba(255,143,191,.55),rgba(255,198,92,.55),transparent)}
+  body.sea .lockb{background:rgba(15,168,143,.08);border-color:var(--edge2);color:var(--cy)}
+  body.sea .tabs{background:rgba(255,251,246,.9);border-top-color:var(--edge)}
+  body.sea .tabs button{color:#C4AFA6}
+  body.sea .tabs button.on{color:var(--cy)}
+  body.sea input,body.sea select{background:#FFFBF6;border-color:var(--edge2);color:var(--txt)}
+  body.sea .ai{background:rgba(255,143,191,.05);border-color:#F2CBDD}
+  body.sea .ai textarea{background:#FFFBF6;border-color:var(--edge2);color:var(--txt)}
+  body.sea .fpick,body.sea .supp,body.sea .site{background:#FFFFFF;box-shadow:0 3px 12px -6px rgba(15,168,143,.2)}
+  body.sea .fpick .ico{background:linear-gradient(145deg,#E9F8F3,#FDF0F6);border-color:var(--edge)}
+  body.sea .stat{background:#FFFFFF;box-shadow:0 3px 12px -6px rgba(15,168,143,.2)}
+  body.sea .stat.good .v{color:var(--green)} body.sea .stat.warn .v{color:var(--amber)} body.sea .stat.bad .v{color:var(--red)}
+  body.sea .stat .v{color:#12403A}
+  body.sea .ringv{fill:#12403A} body.sea .ringl,body.sea .ringt{fill:#7FB0A7}
+  body.sea .btn{background:rgba(15,168,143,.08)}
+  body.sea .btn.solid{background:linear-gradient(135deg,#0FA88F,#3BC9AE);color:#fff}
+  body.sea .key{background:#FFFFFF;border-color:var(--edge);color:var(--txt);box-shadow:0 3px 10px -4px rgba(15,168,143,.25)}
+  body.sea .key:active{background:#E9F7F2}
+  body.sea .login{background:linear-gradient(165deg,#CFF2E7 0%,#EAF7F3 50%,#FDE8F1 100%)}
+  body.sea .login::before{background:radial-gradient(circle,rgba(255,143,191,.28),transparent 60%)}
+  body.sea .login::after{content:'';position:absolute;width:440px;height:440px;border-radius:50%;bottom:-180px;left:-130px;
+    background:radial-gradient(circle,rgba(255,205,120,.3),transparent 62%)}
+  body.sea .login h1{color:#0C4B41}
+  body.sea .backl{color:#5D8B84}
+  body.sea .core,body.sea .lcore{border-color:#0FA88F;box-shadow:0 0 22px rgba(15,168,143,.45),inset 0 0 12px rgba(15,168,143,.25)}
+  body.sea .core::after,body.sea .lcore::after{background:linear-gradient(135deg,#0FA88F,#FF8FBF);box-shadow:0 0 14px rgba(255,143,191,.6)}
+  body.sea .tminus{color:#E85C9B;text-shadow:0 0 12px rgba(255,143,191,.35)}
+  body.sea .toast{background:linear-gradient(135deg,#0FA88F,#FF8FBF);color:#fff;box-shadow:0 10px 30px -6px rgba(232,92,155,.45)}
+  body.sea .banner.err{background:#FDECF1;border-color:#F6C4D3}
+  body.sea .meal{border-color:#EAF3EF}
+  body.sea .aires{border-color:var(--edge2);background:#FBFEFD}
+  body.sea .wd.hit{color:var(--green);border-color:rgba(18,179,128,.5);background:rgba(18,179,128,.08)}
+  .wminus{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;
+    border:1px solid var(--edge2);color:var(--dim);font-size:17px;font-weight:700;margin-left:10px;vertical-align:middle;cursor:pointer}
+  /* profile select */
+  .profiles{display:flex;flex-direction:column;gap:14px;width:100%;max-width:380px;position:relative;z-index:1}
+  .prof{display:flex;align-items:center;gap:16px;background:rgba(13,23,40,.85);border:1px solid var(--edge2);border-radius:18px;
+    padding:18px;cursor:pointer;text-align:left;color:var(--txt);font-family:var(--disp);transition:all .2s;backdrop-filter:blur(8px)}
+  .prof:active{transform:scale(.97)}
+  .prof .pico{width:56px;height:56px;min-width:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;border:2px solid}
+  .prof .pn{font-size:19px;font-weight:700;letter-spacing:.14em}
+  .prof .ps{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--dim);margin-top:3px}
+  .prof.sun{border-color:rgba(255,122,80,.4)} .prof.sun .pico{border-color:#FF7A50;box-shadow:0 0 18px rgba(255,122,80,.5);background:rgba(255,122,80,.08)}
+  .prof.mer{border-color:rgba(95,232,201,.4)} .prof.mer .pico{border-color:#5FE8C9;box-shadow:0 0 18px rgba(95,232,201,.5);background:rgba(95,232,201,.08)}
+  /* AI */
+  .ai{border:1px solid var(--edge2);border-radius:13px;padding:13px;background:rgba(255,122,80,.03);margin-top:10px}
+  .ai textarea{width:100%;border:1px solid var(--edge2);border-radius:10px;padding:11px 12px;font-size:15px;font-family:var(--disp);
+    color:var(--txt);background:#081020;outline:none;min-height:74px;line-height:1.5}
+  body.sea .ai textarea{background:#052029}
+  .ai textarea:focus{border-color:var(--cy)}
+  .aires{border:1px dashed var(--edge2);border-radius:11px;padding:12px;margin-top:10px;font-family:var(--mono);font-size:13px}
+  .aires b{color:var(--cy);font-size:16px}
+  .scanline{height:2px;background:linear-gradient(90deg,transparent,var(--cy),transparent);animation:scan 1s linear infinite;margin:10px 0}
+  @keyframes scan{from{transform:translateX(-40%)}to{transform:translateX(40%)}}
+  .mt8{margin-top:8px}.mt10{margin-top:10px}.mt12{margin-top:12px}.mb10{margin-bottom:10px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script type="module">
+import { h, render, Fragment } from 'https://esm.sh/preact@10.22.0';
+import { useState, useEffect, useMemo, useRef } from 'https://esm.sh/preact@10.22.0/hooks';
+import htm from 'https://esm.sh/htm@3.1.1';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { initializeFirestore, doc, onSnapshot, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
+const html = htm.bind(h);
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCHhKRlq9lrfCz2DQuZ7NLbnbrOZtmtJok",
+  authDomain: "sillysausage-8b937.firebaseapp.com",
+  projectId: "sillysausage-8b937",
+  storageBucket: "sillysausage-8b937.firebasestorage.app",
+  messagingSenderId: "497423190774",
+  appId: "1:497423190774:web:569ab18a62421053f97ad7"
+};
+const fb=initializeApp(firebaseConfig);
+const db = initializeFirestore(fb, { experimentalForceLongPolling: true }); // survives gym/store/hotel wifi with multiple devices
+const auth = getAuth(fb);
+const PIN_PAD='hmpin-'; // invisible padding so a 4-digit PIN meets Firebase's 6-char password minimum
+const D=(k)=>doc(db,'gyrocity',k);
+
+// ===== defaults tuned to Angelos' protocol =====
+const DEF_TARGETS={kcal:3500,protein:180,carbs:420,fat:105,goalDate:'2026-07-28',cutoff:'21:00'};
+const DEF_FOODS=[
+  {id:'f1',e:'',n:'3 Eggs scrambled',kcal:210,p:18,c:2,f:15},
+  {id:'f2',e:'',n:'Sourdough ×2 + butter',kcal:290,p:8,c:46,f:8},
+  {id:'f3',e:'',n:'Greek yogurt + Manuka',kcal:260,p:20,c:24,f:8},
+  {id:'f4',e:'',n:'Post-gym shake (milk·PB·banana·whey)',kcal:820,p:62,c:68,f:34},
+  {id:'f5',e:'',n:'Chicken thighs 8oz',kcal:440,p:52,c:0,f:24},
+  {id:'f6',e:'',n:'Rice 1.5 cup cooked',kcal:300,p:6,c:66,f:1},
+  {id:'f7',e:'',n:'Salmon 8oz',kcal:460,p:46,c:0,f:28},
+  {id:'f8',e:'',n:'Gyro plate (work meal)',kcal:850,p:45,c:70,f:40},
+  {id:'f9',e:'',n:'Avocado',kcal:240,p:3,c:12,f:22},
+  {id:'f10',e:'',n:'Olive oil 1 tbsp',kcal:120,p:0,c:0,f:14},
+];
+const DEF_SUPPS=['Creatine 5g','Vitamin D3','Fish oil','Magnesium (PM)','Zinc'];
+const DEF_SITES=[['UL','UPPER LEFT · ABDOMEN'],['UR','UPPER RIGHT · ABDOMEN'],['LL','LOWER LEFT · ABDOMEN'],['LR','LOWER RIGHT · ABDOMEN']];
+const COMPOUNDS={
+  cjc:{label:'CJC-1295 / IPAMORELIN',when:'PM · FASTED',days:[1,2,3,4,5],fasted:true},   // Mon–Fri nights
+  ghk:{label:'GHK-CU',when:'AM',days:[2,3,4,5,6],fasted:false},                          // Tue–Sat mornings
+};
+
+const PROFILES={
+  helios:{name:'ANGELOS',app:'HELIOS',sub:'ANGELOS · HEALTH OS',email:'angelos@helios.local',metaDoc:'helios_meta',dayPrefix:'helios_day_',
+    targets:{kcal:3500,protein:180,carbs:420,fat:105,goalDate:'2026-07-28',cutoff:'21:00'},goalLabel:'CYPRUS',
+    foods:DEF_FOODS,supps:DEF_SUPPS,acc:'#FF7A50',accG:'#3ECF8E',peptides:true},
+  nereid:{name:'ANTIGONI',app:'NEREID',sub:'ANTIGONI · SIREN OS',email:'antigoni@helios.local',metaDoc:'nereid_meta',dayPrefix:'nereid_day_',
+    targets:{kcal:2000,protein:130,carbs:210,fat:65,goalDate:'',cutoff:'21:00'},goalLabel:'SHOWTIME',
+    foods:[
+      {id:'n1',e:'',n:'Halloumi & eggs',kcal:380,p:26,c:4,f:29},
+      {id:'n2',e:'',n:'Greek salad + feta & olive oil',kcal:340,p:10,c:16,f:27},
+      {id:'n3',e:'',n:'Chicken souvlaki wrap',kcal:520,p:38,c:52,f:17},
+      {id:'n4',e:'',n:'Greek yogurt, honey & walnuts',kcal:310,p:18,c:30,f:14},
+      {id:'n5',e:'',n:'Freddo espresso (light milk)',kcal:45,p:1,c:4,f:2},
+    ],supps:[],acc:'#5FE8C9',accG:'#FFB4D9',peptides:false},
+};
+const dkey=(d)=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const todayKey=()=>dkey(new Date());
+const nowHM=()=>{const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');};
+const emptyDay=()=>({meals:[],supps:{},inj:null,water:0});
+
+const NavIcon=({id})=>{
+  const P2={fill:'none',stroke:'currentColor','stroke-width':'1.8','stroke-linecap':'round','stroke-linejoin':'round'};
+  return html`<svg class="ti" viewBox="0 0 24 24" aria-hidden="true">
+    ${id==='cmd'&&html`<g ...${P2}><circle cx="12" cy="12" r="4.1"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.2 5.2l1.6 1.6M17.2 17.2l1.6 1.6M18.8 5.2l-1.6 1.6M6.8 17.2l-1.6 1.6"/></g>`}
+    ${id==='fuel'&&html`<g ...${P2}><path d="M8 2.8v6.4M5.4 2.8v4.1a2.6 2.6 0 0 0 5.2 0V2.8M8 9.2V21.2"/><path d="M16.6 2.8c-1.9 1-2.9 3.4-2.9 6.2 0 1.6.9 2.4 2.9 2.4V21.2M16.6 2.8v18.4"/></g>`}
+    ${id==='train'&&html`<g ...${P2}><path d="M7.6 12h8.8"/><path d="M6 7.4v9.2M18 7.4v9.2"/><path d="M2.9 9.3v5.4M21.1 9.3v5.4"/></g>`}
+    ${id==='voice'&&html`<g ...${P2}><rect x="9" y="2.9" width="6" height="11" rx="3"/><path d="M5.4 11.2a6.6 6.6 0 0 0 13.2 0"/><path d="M12 17.8v3.3M9 21.1h6"/></g>`}
+    ${id==='stack'&&html`<g ...${P2}><rect x="4.2" y="9.2" width="15.6" height="6.2" rx="3.1" transform="rotate(-38 12 12.3)"/><path d="M9.6 14.9l4.8-5.8"/></g>`}
+    ${id==='body'&&html`<g ...${P2}><path d="M12 20.2S3.4 15 3.4 9.1c0-2.9 2.2-5 4.9-5 1.6 0 3 .8 3.7 2 .7-1.2 2.1-2 3.7-2 2.7 0 4.9 2.1 4.9 5 0 5.9-8.6 11.1-8.6 11.1z"/><path d="M7.4 11.6h2.3l1.2-2.2 1.6 3.6 1.2-1.9h2.6" stroke-width="1.5"/></g>`}
+  </svg>`;
+};
+function App(){
+  const [profile,setProfile]=useState(null);
+  const [aiMeta,setAiMeta]=useState(null);
+  const [authed,setAuthed]=useState(false);
+  const [pinBuf,setPinBuf]=useState('');
+  const [pinMode,setPinMode]=useState('enter');
+  const [firstPin,setFirstPin]=useState('');
+  const [pinBad,setPinBad]=useState(false);
+  const [busy,setBusy]=useState(false);
+  const [meta,setMeta]=useState(null);      // {pin,targets,foods,supps,weightLog,injLog}
+  const [day,setDay]=useState(null);        // today's doc
+  const [dayLoaded,setDayLoaded]=useState(false);
+  const [tab,setTab]=useState('cmd');
+  useEffect(()=>{window.scrollTo({top:0,left:0,behavior:'instant'});},[tab]);
+  const [err,setErr]=useState('');
+  const [toast,setToast]=useState('');
+  const toastT=useRef(null);
+  const [foodForm,setFoodForm]=useState(null);
+  const [suppAdd,setSuppAdd]=useState('');
+  const [suppEdit,setSuppEdit]=useState(false);
+  const [foodQ,setFoodQ]=useState('');
+  const [foodEdit,setFoodEdit]=useState(false);
+  const [qfOpen,setQfOpen]=useState(()=>localStorage.getItem('qf-open')==='1');
+  const toggleQf=()=>{const v=!qfOpen;setQfOpen(v);localStorage.setItem('qf-open',v?'1':'0');};
+  const [wIn,setWIn]=useState('');
+  const [trainSub,setTrainSub]=useState('log');
+  const [wk,setWk]=useState({type:'class',min:'60'});
+  const [pl,setPl]=useState({type:'class'});
+  const [fbReady,setFbReady]=useState(false);
+  useEffect(()=>{
+    let done=false;
+    const un=onAuthStateChanged(auth,(u)=>{if(u&&!done){done=true;setFbReady(true);}},()=>{});
+    const t=setTimeout(()=>{if(!done){done=true;setFbReady(true);}},2500); // fail-open if auth is unreachable
+    return ()=>{un();clearTimeout(t);};
+  },[]);
+  const [dayKey,setDayKey]=useState(todayKey());
+  useEffect(()=>{
+    const t=setInterval(()=>{const k=todayKey();setDayKey(p=>p===k?p:k);},15000);
+    return ()=>clearInterval(t);
+  },[]);
+  const [editT,setEditT]=useState(null);
+  useEffect(()=>{
+    if(!err)return;
+    const t=setTimeout(()=>setErr(''),7000);
+    return ()=>clearTimeout(t);
+  },[err]);
+
+  const srvSeen=useRef({});
+  const trustSnap=(key,s)=>{
+    const fromCache=!!(s.metadata&&s.metadata.fromCache);
+    if(fromCache&&srvSeen.current[key])return false;
+    if(fromCache&&!s.exists())return false;
+    if(!fromCache)srvSeen.current[key]=true;
+    return true;
+  };
+  const [stuck,setStuck]=useState(false);
+  useEffect(()=>{
+    if(!authed)return;
+    const t=setTimeout(()=>{if(!dayLoaded)setStuck(true);},9000);
+    if(dayLoaded)setStuck(false);
+    return ()=>clearTimeout(t);
+  },[authed,dayLoaded]);
+  const [injSiteSel,setInjSiteSel]=useState({});
+  const SITES=meta?.injSites?.length?meta.injSites.map(s2=>Array.isArray(s2)?s2:(s2&&typeof s2==='object'&&s2.id?[s2.id,s2.label||s2.id]:[s2,s2])):DEF_SITES;
+  const packSites=(list)=>list.map(([id2,label2])=>({id:id2,label:label2})); // Firestore forbids nested arrays
+  const [siteEdit,setSiteEdit]=useState(false);
+  const [siteAdd,setSiteAdd]=useState('');
+  const [siteArm,setSiteArm]=useState(null);
+  const [injFasted,setInjFasted]=useState(true);
+  const [now,setNow]=useState(new Date());
+
+  const flash=(m)=>{setToast(m);clearTimeout(toastT.current);toastT.current=setTimeout(()=>setToast(''),1500);};
+  useEffect(()=>{const t=setInterval(()=>setNow(new Date()),30000);return ()=>clearInterval(t);},[]);
+
+  useEffect(()=>{
+    if(!authed)return; // shared AI config is now readable only once signed in
+    const ua=onSnapshot(D('helios_ai'),(s)=>{if(!trustSnap('ai',s))return;setAiMeta(s.exists()?s.data():{});},()=>{});
+    return ()=>ua();
+  },[authed]);
+  useEffect(()=>{
+    if(!profile)return;
+    if(document.body)document.body.className=profile==='nereid'?'sea':'';
+    // Data lives behind the login now — only subscribe once this profile's PIN has signed us in.
+    if(!authed){setMeta(null);setDay(null);setDayLoaded(false);return;}
+    const P2=PROFILES[profile];
+    const um=onSnapshot(D(P2.metaDoc),(s)=>{if(!trustSnap('meta_'+P2.metaDoc,s))return;setMeta(s.exists()?s.data():{});},()=>setErr('No connection.'));
+    const ud=onSnapshot(D(P2.dayPrefix+dayKey),(s)=>{if(!trustSnap('day_'+P2.dayPrefix+dayKey,s))return;setDay(s.exists()?s.data():emptyDay());setDayLoaded(true);},()=>setErr('No connection.'));
+    return ()=>{um();ud();};
+  },[profile,dayKey,authed]);
+  // Daily auto-backup — a backup only ever accepts an equal-or-bigger copy.
+  useEffect(()=>{
+    if(!authed||meta===null)return;
+    const today=todayKey();
+    const lk='hel-bak-'+profile;
+    if(localStorage.getItem(lk)===today)return;
+    localStorage.setItem(lk,today);
+    (async()=>{
+      try{
+        const n=(meta.injLog||[]).length+(meta.workLog||[]).length+(meta.weightLog||[]).length+(meta.foods||[]).length+Object.keys(meta.vhist||{}).length+Object.keys(meta).length;
+        const bk=D('bak_'+P.metaDoc);
+        let prev=-1;
+        try{const g=await getDoc(bk);if(g.exists())prev=g.data().n??-1;}catch(e){}
+        if(n>=prev)await setDoc(bk,{at:new Date().toISOString(),n,data:meta});
+      }catch(e){/* retries tomorrow */}
+    })();
+  },[authed,meta===null,profile]);
+
+  const P=profile?PROFILES[profile]:PROFILES.helios;
+  const saveMeta=(patch)=>{
+    if(meta===null){setErr('Still connecting — retry in a second.');return;}
+    setDoc(D(P.metaDoc),{...meta,...patch}).catch(e=>setErr('Save failed. '+(e.message||e)));
+  };
+  const saveDay=(next)=>{
+    if(!dayLoaded){setErr('Still connecting — retry in a second.');return;}
+    setDay(next);
+    setDoc(D(P.dayPrefix+dayKey),next).catch(e=>setErr('Save failed. '+(e.message||e)));
+  };
+  const saveAiKey=(k)=>{
+    if(aiMeta===null){setErr('Still connecting — retry in a second.');return;}
+    setDoc(D('helios_ai'),{...aiMeta,key:k.trim()}).catch(e=>setErr('Save failed. '+(e.message||e)));
+  };
+
+  // ---- lock ----
+  useEffect(()=>{
+    if(authed)return;
+    const h=(e)=>{
+      if(/^[0-9]$/.test(e.key)){pressKey(e.key);e.preventDefault();}
+      else if(e.key==='Backspace'){pressKey('back');e.preventDefault();}
+    };
+    window.addEventListener('keydown',h);
+    return ()=>window.removeEventListener('keydown',h);
+  },[authed,pinBuf,pinMode,pinBad,firstPin,meta,profile]);
+  function pressKey(k){
+    if(busy)return;
+    if(pinBad)setPinBad(false);
+    if(k==='back'){setPinBuf(pinBuf.slice(0,-1));return;}
+    if(pinBuf.length>=4)return;
+    const nb=pinBuf+k;setPinBuf(nb);
+    if(nb.length===4)setTimeout(()=>submitPin(nb),120);
+  }
+  // The PIN *is* the account password now. First PIN ever typed for a profile creates
+  // its account; after that, the right PIN signs in and a wrong one is rejected by Firebase.
+  async function submitPin(code){
+    setBusy(true);
+    const email=P.email, pw=PIN_PAD+code;
+    try{
+      await signInWithEmailAndPassword(auth,email,pw);
+      setAuthed(true);setPinBuf('');
+    }catch(e){
+      try{
+        await createUserWithEmailAndPassword(auth,email,pw); // no account yet → this PIN sets it
+        setAuthed(true);setPinBuf('');
+      }catch(e2){
+        // account exists (email-already-in-use) → the PIN was simply wrong; anything else = network
+        if(e2&&e2.code&&e2.code!=='auth/email-already-in-use'&&e2.code!=='auth/network-request-failed')setErr('Sign-in failed. '+(e2.message||e2));
+        setPinBad(true);setPinBuf('');
+      }
+    }finally{setBusy(false);}
+  }
+
+  // ---- derived ----
+  const T={...P.targets,...(meta?.targets||{})};
+  const waterGoal=meta?.waterGoal||8;
+  const unit=meta?.unit||'lb';
+  const toDisp=(lb)=>unit==='kg'?Math.round(lb*0.4536*10)/10:lb;
+  const toLb=(v)=>unit==='kg'?Math.round(v/0.4536*10)/10:v;
+  const uLabel=unit.toUpperCase();
+  const foods=meta?.foods||P.foods;
+  const suppList=meta?.supps||P.supps;
+  const weightLog=meta?.weightLog||[];
+  const injLog=meta?.injLog||[];
+  const d=day||emptyDay();
+  const tot=useMemo(()=>{
+    const s={kcal:0,p:0,c:0,f:0,pre:0};
+    for(const m of d.meals){s.kcal+=m.kcal;s.p+=m.p;s.c+=m.c;s.f+=m.f;if(m.hour<12)s.pre+=m.kcal;}
+    return s;
+  },[d]);
+  const preNoonPct=tot.kcal>0?Math.round(tot.pre/tot.kcal*100):0;
+  const cutHM=(T.cutoff||'21:00').split(':');
+  const cutMin=((+cutHM[0]||21)*60+(+cutHM[1]||0))-(now.getHours()*60+now.getMinutes());
+  const cutStr=cutMin>0?`${Math.floor(cutMin/60)}h ${String(cutMin%60).padStart(2,'0')}m`:'CLOSED';
+  const daysToGoal=T.goalDate?Math.max(0,Math.round((new Date(T.goalDate+'T00:00:00')-now)/86400000)):null;
+  const compOf=(x)=>x.c||'cjc';
+  const injToday=(cp)=>injLog.find(x=>x.date===todayKey()&&compOf(x)===cp);
+  const lastOf=(cp)=>injLog.find(x=>compOf(x)===cp);
+  const nextSiteFor=(cp)=>{const l=lastOf(cp);const i=l?SITES.findIndex(s=>s[0]===l.site):-1;return SITES[(i+1+SITES.length)%SITES.length][0];};
+  const schedToday=(cp)=>COMPOUNDS[cp].days.includes(now.getDay());
+  const injDoneToday=!!injToday('cjc');
+  const suppDone=suppList.filter(s2=>d.supps[s2]).length;
+  const lastW=weightLog[0];
+  const wTrend=useMemo(()=>{
+    if(weightLog.length<2)return null;
+    const sorted=[...weightLog].sort((a,b)=>a.date<b.date?-1:1).slice(-14);
+    const first=sorted[0],last=sorted[sorted.length-1];
+    const days2=Math.max(1,(new Date(last.date)-new Date(first.date))/86400000);
+    return {perWeek:((last.w-first.w)/days2*7),pts:sorted};
+  },[weightLog]);
+
+  // ---- training ----
+  const workLog=meta?.workLog||[];
+  const plan=meta?.plan||[];
+  const favClasses=meta?.classes||[];
+  const trainedToday=workLog.some(w=>w.date===todayKey());
+  const weekTrainCount=workLog.filter(w=>{const dd=new Date(w.date+'T12:00:00');return (now-dd)/86400000<7;}).length;
+  const WTYPES=P.peptides?[['class','CLASS'],['gym','GYM'],['home','BACKYARD']]:[['class','CLASS'],['gym','GYM'],['home','BACKYARD'],['rehearsal','REHEARSAL'],['stage','STAGE']];
+  function logWorkout(){
+    if(wk.type==='class'&&!wk.name?.trim()){setErr('Which class?');return;}
+    setErr('');
+    const rec={id:Date.now().toString(36),date:todayKey(),t:nowHM(),type:wk.type,name:(wk.name||'').trim(),min:+wk.min||null};
+    const patch={workLog:[rec,...workLog].slice(0,600)};
+    if(wk.fav&&wk.name?.trim()&&!favClasses.includes(wk.name.trim()))patch.classes=[...favClasses,wk.name.trim()];
+    saveMeta(patch);
+    setWk({type:wk.type,min:wk.min});
+    flash('WORKOUT LOGGED ✓');
+  }
+  function delWorkout(id){saveMeta({workLog:workLog.filter(w=>w.id!==id)});}
+  function addPlan(){
+    if(!pl.date?.trim()){setErr('Pick a date (YYYY-MM-DD).');return;}
+    if(pl.type==='class'&&!pl.name?.trim()){setErr('Which class?');return;}
+    setErr('');
+    saveMeta({plan:[...plan,{id:Date.now().toString(36),date:pl.date.trim(),time:(pl.time||'').trim(),type:pl.type,name:(pl.name||'').trim()}].slice(0,60)});
+    setPl({type:pl.type});
+    flash('ADDED TO PLAN');
+  }
+  function donePlan(p2){
+    saveMeta({
+      workLog:[{id:Date.now().toString(36),date:p2.date,t:p2.time||'',type:p2.type,name:p2.name,min:null},...workLog].slice(0,600),
+      plan:plan.filter(x=>x.id!==p2.id)
+    });
+    flash('CRUSHED IT ✓');
+  }
+  function delPlan(id){saveMeta({plan:plan.filter(x=>x.id!==id)});}
+  const typeLabel=(t)=>t==='class'?'CLASS':t==='gym'?'GYM':t==='stage'?'STAGE':t==='rehearsal'?'REHEARSAL':'HOME';
+  // ---- AI ----
+  const [aiTxt,setAiTxt]=useState('');
+  const [aiBusy,setAiBusy]=useState(false);
+  const [aiRes,setAiRes]=useState(null);
+  const [aiKeyIn,setAiKeyIn]=useState('');
+  const [stackGoal,setStackGoal]=useState('');
+  const [labBusy,setLabBusy]=useState(false);
+  const [labView,setLabView]=useState(null);
+  const [stackIdeas,setStackIdeas]=useState(null);
+  const [aiImg,setAiImg]=useState(null);      // {b64, prev}
+  const [aiConvo,setAiConvo]=useState([]);     // messages history for refinement
+  const [aiAns,setAiAns]=useState('');
+  async function aiCallMsgs(messages,model,maxTok){
+    const key=aiMeta?.key;
+    if(!key)throw new Error('no key');
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+      headers:{'x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true','content-type':'application/json'},
+      body:JSON.stringify({model,max_tokens:maxTok||400,messages})});
+    const j=await r.json();
+    if(j.error)throw new Error(j.error.message||'AI error');
+    return (j.content||[]).map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
+  }
+  function downscale(file){
+    return new Promise((res,rej)=>{
+      const img=new Image();
+      const url=URL.createObjectURL(file);
+      img.onload=()=>{
+        const MAX=1100;
+        const sc=Math.min(1,MAX/Math.max(img.width,img.height));
+        const cv=document.createElement('canvas');
+        cv.width=Math.round(img.width*sc);cv.height=Math.round(img.height*sc);
+        cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+        const dataURL=cv.toDataURL('image/jpeg',0.82);
+        URL.revokeObjectURL(url);
+        res({b64:dataURL.split(',')[1],prev:dataURL});
+      };
+      img.onerror=()=>rej(new Error('could not read photo'));
+      img.src=url;
+    });
+  }
+  const PLATE_JSON='Respond with ONLY a JSON object, no other text: {"name":"short meal name (max 5 words)","kcal":<integer>,"p":<protein g integer>,"c":<carb g integer>,"f":<fat g integer>,"confidence":"low"|"medium"|"high","questions":[up to 3 short questions that would most improve accuracy — portion size, hidden oils/butter, exact ingredients; empty array if confident]}';
+  async function photoScan(file){
+    if(aiBusy)return;
+    if(!aiMeta?.key){setErr('Add the AI key below first.');return;}
+    setErr('');setAiBusy(true);setAiRes(null);setAiConvo([]);setAiAns('');
+    try{
+      const {b64,prev}=await downscale(file);
+      setAiImg({b64,prev});
+      const userMsg={role:'user',content:[
+        {type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},
+        {type:'text',text:'Estimate the macros of the food in this photo as accurately as possible. Use plate size, utensils, and hands for scale if visible. '+PLATE_JSON}
+      ]};
+      const out=await aiCallMsgs([userMsg],'claude-sonnet-4-6',500);
+      const o=JSON.parse(out);
+      if(!o.name||!(o.kcal>=0))throw new Error('bad response');
+      setAiConvo([userMsg,{role:'assistant',content:out}]);
+      setAiRes({n:String(o.name),kcal:Math.round(+o.kcal||0),p:Math.round(+o.p||0),c:Math.round(+o.c||0),f:Math.round(+o.f||0),
+        conf:String(o.confidence||'medium'),qs:Array.isArray(o.questions)?o.questions.slice(0,3).map(String):[]});
+    }catch(e){setErr('Photo scan failed — '+(e.message==='no key'?'add the AI key.':(e.message||e)));}
+    setAiBusy(false);
+  }
+  async function refineScan(){
+    const a=aiAns.trim();
+    if(!a){setErr('Answer the questions first (one line is fine).');return;}
+    setErr('');setAiBusy(true);
+    try{
+      const msgs=[...aiConvo,{role:'user',content:'My answers: '+a+'. Recalculate the estimate with this information. '+PLATE_JSON}];
+      const out=await aiCallMsgs(msgs,'claude-sonnet-4-6',500);
+      const o=JSON.parse(out);
+      if(!o.name||!(o.kcal>=0))throw new Error('bad response');
+      setAiConvo([...msgs,{role:'assistant',content:out}].slice(-8));
+      setAiRes({n:String(o.name),kcal:Math.round(+o.kcal||0),p:Math.round(+o.p||0),c:Math.round(+o.c||0),f:Math.round(+o.f||0),
+        conf:String(o.confidence||'medium'),qs:Array.isArray(o.questions)?o.questions.slice(0,3).map(String):[]});
+      setAiAns('');
+      flash('ESTIMATE REFINED ✓');
+    }catch(e){setErr('Refine failed — '+(e.message||e));}
+    setAiBusy(false);
+  }
+  function clearScan(){setAiRes(null);setAiImg(null);setAiConvo([]);setAiAns('');setAiTxt('');}
+  async function aiCall(prompt,maxTok){
+    const key=aiMeta?.key;
+    if(!key)throw new Error('no key');
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+      headers:{'x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true','content-type':'application/json'},
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:maxTok||300,messages:[{role:'user',content:prompt}]})});
+    const j=await r.json();
+    if(j.error)throw new Error(j.error.message||'AI error');
+    return (j.content||[]).map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
+  }
+  async function scanMeal(){
+    const t=aiTxt.trim();
+    if(!t){setErr('Describe the meal first.');return;}
+    setErr('');setAiBusy(true);setAiRes(null);
+    try{
+      const out=await aiCall('Estimate the nutrition of this meal as accurately as possible. Respond with ONLY a JSON object, no other text: {"name":"short meal name (max 5 words)","kcal":<integer>,"p":<protein grams integer>,"c":<carb grams integer>,"f":<fat grams integer>}. Meal description: '+t,200);
+      const o=JSON.parse(out);
+      if(!o.name||!(o.kcal>=0))throw new Error('bad response');
+      setAiRes({n:String(o.name),kcal:Math.round(+o.kcal||0),p:Math.round(+o.p||0),c:Math.round(+o.c||0),f:Math.round(+o.f||0)});
+    }catch(e){setErr('Scan failed — '+(e.message==='no key'?'add the AI key below.':'try rewording. ('+(e.message||e)+')'));}
+    setAiBusy(false);
+  }
+  async function suggestStack(){
+    const g=stackGoal.trim();
+    if(!g){setErr('Describe the goals first.');return;}
+    setErr('');setAiBusy(true);setStackIdeas(null);
+    try{
+      const out=await aiCall('Suggest 5 widely-available over-the-counter daily supplements appropriate for these wellness goals: "'+g+'". General wellness only. Respond with ONLY a JSON array of short strings with dose, like ["Vitamin D3 2000 IU","Magnesium glycinate 300mg"]. No other text.',250);
+      const arr=JSON.parse(out);
+      if(!Array.isArray(arr)||!arr.length)throw new Error('bad response');
+      setStackIdeas(arr.map(String).slice(0,6));
+    }catch(e){setErr('Suggestion failed — '+(e.message==='no key'?'add the AI key first.':'try again. ('+(e.message||e)+')'));}
+    setAiBusy(false);
+  }
+  const labReports=meta?.labReports||[];
+  function fileToB64(file){
+    return new Promise((res,rej)=>{
+      const r=new FileReader();
+      r.onload=()=>res(r.result.split(',')[1]);
+      r.onerror=()=>rej(new Error('could not read file'));
+      r.readAsDataURL(file);
+    });
+  }
+  async function analyzeLab(file){
+    if(!aiMeta?.key){setErr('Add the AI key in FUEL → AI MACRO SCAN first.');return;}
+    if(file.size>15*1024*1024){setErr('PDF too big — upload just the lab report (under 15MB).');return;}
+    setErr('');setLabBusy(true);setLabView(null);
+    try{
+      const b64=await fileToB64(file);
+      const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+        headers:{'x-api-key':aiMeta.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true','content-type':'application/json'},
+        body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1600,messages:[{role:'user',content:[
+          {type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}},
+          {type:'text',text:'This is a blood test report. Write an educational recap in plain language for the person whose results these are. Use these ALL-CAPS section headers, each on its own line: SUMMARY (2-3 sentences, overall picture), KEY MARKERS (one line each: marker — value — normal/high/low), OUT OF RANGE (explain each flagged value simply; if none, say all values look within range), LIFESTYLE (specific, practical recommendations based on these actual values), SUPPLEMENT IDEAS (over-the-counter only, with typical doses, tied to the values), ASK YOUR DOCTOR (2-4 smart questions to bring to the next appointment). Be specific to the actual numbers in the report. Plain text only, no markdown symbols. If this is not a lab report, say only that.'}
+        ]}]})});
+      const j=await r.json();
+      if(j.error)throw new Error(j.error.message||'AI error');
+      const recap=(j.content||[]).map(b=>b.text||'').join('').trim();
+      if(!recap)throw new Error('empty response');
+      const rec={id:Date.now().toString(36),date:todayKey(),name:file.name.replace(/\.pdf$/i,'').slice(0,40),recap:recap.slice(0,9000)};
+      saveMeta({labReports:[rec,...labReports].slice(0,12)});
+      setLabView(rec.id);
+      flash('BLOODWORK ANALYZED ✓');
+    }catch(e){setErr('Analysis failed — '+(e.message||e));}
+    setLabBusy(false);
+  }
+  function delLab(id){saveMeta({labReports:labReports.filter(x=>x.id!==id)});if(labView===id)setLabView(null);}
+  // ---- actions ----
+  function addMeal(f2){
+    const h2=new Date().getHours();
+    saveDay({...d,meals:[...d.meals,{id:Date.now().toString(36),t:nowHM(),hour:h2,n:f2.n,kcal:+f2.kcal||0,p:+f2.p||0,c:+f2.c||0,f:+f2.f||0}]});
+    flash('LOGGED +'+(+f2.kcal||0)+' KCAL');
+  }
+  function delMeal(id){saveDay({...d,meals:d.meals.filter(m=>m.id!==id)});}
+  async function copyYesterday(){
+    const yd=new Date();yd.setDate(yd.getDate()-1);
+    try{
+      const s=await getDoc(D(P.dayPrefix+dkey(yd)));
+      const ms=s.exists()?(s.data().meals||[]):[];
+      if(!ms.length){flash('NOTHING LOGGED YESTERDAY');return;}
+      if(!confirm('Copy all '+ms.length+' meals from yesterday into today?'))return;
+      saveDay({...d,meals:[...d.meals,...ms.map(m=>({...m,id:Date.now().toString(36)+Math.random().toString(36).slice(2,5)}))]});
+      flash('YESTERDAY COPIED — '+ms.length+' MEALS ↻');
+    }catch(e){setErr('Could not load yesterday.');}
+  }
+  function submitCustom(){
+    const c=foodForm;
+    if(!c?.n?.trim()||!c?.kcal){setErr('Name and calories required.');return;}
+    setErr('');
+    addMeal({n:c.n.trim(),kcal:c.kcal,p:c.p||0,c:c.c||0,f:c.f||0});
+    if(c.save)saveMeta({foods:[...foods,{id:'f'+Date.now().toString(36),e:'',n:c.n.trim(),kcal:+c.kcal,p:+c.p||0,c:+c.c||0,f:+c.f||0}]});
+    setFoodForm(null);
+  }
+  function toggleSupp(name){saveDay({...d,supps:{...d.supps,[name]:!d.supps[name]}});}
+  function logInjection(cp){
+    if(injToday(cp)){setErr('Already logged today.');return;}
+    const site=injSiteSel[cp];
+    if(!site){setErr('Pick the injection site.');return;}
+    setErr('');
+    const rec={date:todayKey(),site,c:cp,t:nowHM()};
+    if(COMPOUNDS[cp].fasted)rec.fasted=injFasted;
+    saveMeta({injLog:[rec,...injLog].slice(0,800)});
+    setInjSiteSel({...injSiteSel,[cp]:null});
+    flash(COMPOUNDS[cp].label.split('')[0]+' LOGGED — '+site);
+  }
+  function undoInjection(cp){saveMeta({injLog:injLog.filter(x=>!(x.date===todayKey()&&compOf(x)===cp))});}
+  const [expBusy,setExpBusy]=useState(false);
+  async function exportData(){
+    if(expBusy)return;
+    setExpBusy(true);setErr('');
+    try{
+      const days={};
+      const jobs=[];
+      for(let i=0;i<90;i++){
+        const dd=new Date();dd.setDate(dd.getDate()-i);
+        const k=dkey(dd);
+        jobs.push(getDoc(D(P.dayPrefix+k)).then(s=>{if(s.exists())days[k]=s.data();}).catch(()=>{}));
+      }
+      await Promise.all(jobs);
+      const payload={app:P.app,profile,exportedAt:new Date().toISOString(),meta,days};
+      const blob=new Blob([JSON.stringify(payload,null,1)],{type:'application/json'});
+      const a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);
+      a.download=P.app.toLowerCase()+'-export-'+todayKey()+'.json';
+      a.click();
+      setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+      flash('DATA EXPORTED ✓');
+    }catch(e){setErr('Export failed. '+(e.message||e));}
+    setExpBusy(false);
+  }
+  function logWeight(){
+    const raw=parseFloat(wIn);
+    const lo=unit==='kg'?36:80, hi=unit==='kg'?182:400;
+    if(!raw||raw<lo||raw>hi){setErr('Enter a real weight in '+uLabel+'.');return;}
+    const w=Math.round(toLb(raw)*10)/10;
+    setErr('');
+    saveMeta({weightLog:[{date:todayKey(),w},...weightLog.filter(x=>x.date!==todayKey())].slice(0,730)});
+    setWIn('');flash('BODYWEIGHT LOGGED');
+  }
+  function saveTargets(){
+    const t2=editT;
+    saveMeta({targets:{kcal:+t2.kcal||3500,protein:+t2.protein||180,carbs:+t2.carbs||420,fat:+t2.fat||105,goalDate:t2.goalDate??'',cutoff:(t2.cutoff||'21:00')}});
+    if(editT.waterGoal!==undefined)saveMeta({waterGoal:Math.max(1,parseInt(editT.waterGoal)||8)});
+    setEditT(null);flash('TARGETS UPDATED');
+  }
+
+  // ---- ring component ----
+  const Ring=(p2)=>{
+    const r=44,C2=2*Math.PI*r,pct=Math.min(1,p2.v/p2.max);
+    return html`
+      <div class="ringbox">
+        <svg width="118" height="118" viewBox="0 0 118 118">
+          <defs>
+            <linearGradient id="sunG" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#FFC65C"/><stop offset="1" stop-color="#FF6B57"/>
+            </linearGradient>
+          </defs>
+          <circle cx="59" cy="59" r=${r} fill="none" stroke="var(--edge)" stroke-width="9"/>
+          <circle cx="59" cy="59" r=${r} fill="none" stroke=${p2.col==='sun'?'url(#sunG)':p2.col} stroke-width="9" stroke-linecap="round"
+            stroke-dasharray=${C2} stroke-dashoffset=${C2*(1-pct)}
+            style=${{filter:p2.col==='sun'?'drop-shadow(0 0 7px rgba(255,107,87,.7))':`drop-shadow(0 0 6px ${p2.col})`,transition:'stroke-dashoffset .6s ease'}}/>
+          <text x="59" y="56" text-anchor="middle" class="ringv" transform="rotate(90 59 59)">${Math.round(p2.v)}</text>
+          <text x="59" y="70" text-anchor="middle" class="ringt" transform="rotate(90 59 59)">/ ${p2.max}${p2.unit||''}</text>
+          <text x="59" y="84" text-anchor="middle" class="ringl" transform="rotate(90 59 59)">${p2.label}</text>
+        </svg>
+</div>`;
+  };
+
+  // ================= LOCK SCREEN =================
+  if(!profile){
+    return html`
+      <div class="login">
+        <div class="lcore"></div>
+        <div class="profiles">
+          <div style="text-align:center;margin-bottom:4px">
+            <h1 style="font-size:24px">SELECT PROFILE</h1>
+            <div class="sub" style="margin-top:4px">DUAL-CORE HEALTH OS</div>
+</div>
+          <button class="prof sun" onClick=${()=>{setAuthed(false);setPinBuf('');setPinBad(false);setProfile('helios');}}>
+            <div class="pico" style="font-family:inherit;font-weight:800">H</div>
+            <div><div class="pn">ANGELOS</div><div class="ps">HELIOS</div></div>
+          </button>
+          <button class="prof mer" onClick=${()=>{setAuthed(false);setPinBuf('');setPinBad(false);setProfile('nereid');}}>
+            <div class="pico" style="font-family:inherit;font-weight:800">N</div>
+            <div><div class="pn">ANTIGONI</div><div class="ps">NEREID</div></div>
+          </button>
+</div>
+</div>`;
+  }
+  if(!authed){
+    const dots=[0,1,2,3].map(i=>html`<div class=${'dot'+(pinBuf.length>i?' f':'')} key=${i}></div>`);
+    return html`
+      <div class="login">
+        <div class="lcore" style=${profile==='nereid'?{fontSize:'34px',display:'flex',alignItems:'center',justifyContent:'center'}:{}}></div>
+        <div class="lcard">
+          <h1 style="font-size:26px">${P.app}</h1>
+          <div class="sub" style="margin-top:4px">${P.sub}</div>
+          <div class="dim mt12" style="font-family:var(--mono);font-size:12px">
+            ${busy?'SIGNING IN…':'ENTER ACCESS CODE'}
+            ${pinBad&&html`<div style="color:var(--red);margin-top:5px">ACCESS DENIED — RETRY</div>`}
+</div>
+          <div class=${'dots'+(pinBad?' bad':'')}>${dots}</div>
+          <div class="pad">
+            ${[1,2,3,4,5,6,7,8,9].map(k=>html`<button class="key" key=${k} onClick=${()=>pressKey(String(k))}>${k}</button>`)}
+            <span></span>
+            <button class="key" onClick=${()=>pressKey('0')}>0</button>
+            <button class="key ghostk" onClick=${()=>pressKey('back')}>⌫</button>
+</div>
+          <button class="ghost mt12" style="color:var(--dim)" onClick=${()=>setProfile(null)}>↩ switch profile</button>
+</div>
+</div>`;
+  }
+
+  // ================= TABS =================
+  const vc=d.voice||{};
+  const setV=(patch)=>saveDay({...d,voice:{...vc,...patch}});
+  const VOICE_CHECKS=[
+    ['straw','','VOCAL STRAW EXERCISES'],
+    ['metal','','METAL STRAW EXERCISES'],
+    ['warmup','','VOCAL WARM UPS'],
+    ['stretch','','VOCAL STRETCHES'],
+  ];
+  const vTimes={straw:3,metal:3,warmup:5,stretch:3,steam:10,...(meta?.vTimes||{})};
+  const [vtEdit,setVtEdit]=useState(false);
+  const setVTime=(k,val)=>{
+    const n2=Math.max(1,Math.min(60,parseInt(val)||1));
+    saveMeta({vTimes:{...vTimes,[k]:n2}});
+  };
+  const showDate=meta?.showDate??'2026-07-26';
+  const showName=meta?.showName??'FIRST EVER HEADLINE SHOW · CYPRUS';
+  const [showEdit,setShowEdit]=useState(null);
+  const [nowT,setNowT]=useState(Date.now());
+  useEffect(()=>{
+    if(P.peptides||tab!=='cmd')return;
+    const t=setInterval(()=>setNowT(Date.now()),1000);
+    return ()=>clearInterval(t);
+  },[tab,profile]);
+  const showDiff=(()=>{
+    if(!showDate)return null;
+    const target=new Date(showDate+'T21:00:00').getTime();
+    const ms=target-nowT;
+    const days=Math.floor(ms/86400000);
+    return {ms,days,h:Math.floor(ms/3600000)%24,m:Math.floor(ms/60000)%60,s:Math.floor(ms/1000)%60,
+      after:Math.floor((nowT-target)/86400000)};
+  })();
+  const showLine=(()=>{
+    if(!showDiff)return '';
+    if(showDiff.ms<=0)return null;
+    const dL=Math.ceil(showDiff.ms/86400000);
+    if(showDate===todayKey())return 'TONIGHT. Full ritual, nebuliser ×3, zero shouting at soundcheck — then go take the island.';
+    if(dL===1)return 'Tomorrow the island learns her name. Voice on lockdown from now.';
+    if(dL<=3)return 'Final approach — full ritual every single day now. Steam, straw, silence, sleep.';
+    if(dL<=5)return 'Rest the voice like it\u2019s money. Because Sunday, it is.';
+    return 'The siren\u2019s first headline. Every ritual between now and then is a soundcheck.';
+  })();
+  const stageToday=plan.some(p2=>p2.date===todayKey()&&p2.type==='stage')||workLog.some(w=>w.date===todayKey()&&w.type==='stage')||showDate===todayKey();
+  const nebTarget=stageToday?3:2;
+  const vDone=VOICE_CHECKS.filter(([k])=>vc[k]).length+((vc.neb||0)>=nebTarget?1:0)+((vc.steam||0)>=1?1:0);
+  const vComplete=vDone>=6;
+  const sirenScore=VOICE_CHECKS.filter(([k])=>vc[k]).length*10+Math.min(vc.neb||0,3)*10+Math.min(vc.steam||0,2)*10+(vc.feel?5:0)+Math.min(d.water||0,8)*2;
+  const sirenRank=sirenScore>=90?['','SIREN OF THE AEGEAN']:sirenScore>=60?['','SIREN']:sirenScore>=30?['','SONGBIRD']:['','SEA FOAM'];
+  const FEELS=[[1,'1','ROUGH'],[2,'2','TIRED'],[3,'3','OK'],[4,'4','CLEAR'],[5,'5','BRIGHT']];
+  const VTIPS=[
+    'Whispering strains more than soft speaking — if the voice is tired, talk quietly, don\u2019t whisper.',
+    'Hydration works ~4 hours ahead. Drink for tonight\u2019s set this afternoon, not at soundcheck.',
+    'Straw work in the shower = steam + SOVT in one. Multitask like a pro.',
+    'After a big show: 10 minutes of vocal silence before sleep. Let it land.',
+    'Morning voice is not real voice. Judge nothing before the first warm up.',
+    'Caffeine dries — chase every freddo with a full glass of water.',
+    'Gentle humming in the car counts as a warm up. The steering wheel is a stage.',
+    'Steam is for the folds, tea is for the soul. The folds only feel the steam.',
+    'Yawn-sighs release tongue tension you don\u2019t know you\u2019re holding.',
+    'Loud rooms make you push. Step outside for 5 quiet minutes at parties.',
+    'The neck and jaw are part of the instrument — stretches are not optional.',
+    'A cracked note in practice is information, not a verdict.',
+    'Air conditioning is a desert. Nebulise after long AC days and flights.',
+    'Sleep is the best vocal treatment ever invented. Protect it before shows.',
+  ];
+  const vTip=VTIPS[parseInt(todayKey().replace(/-/g,''),10)%VTIPS.length];
+  const vLog=meta?.voiceLog||{};
+  const vStreak=(()=>{let s2=0;const dd=new Date();if(!vLog[dkey(dd)])dd.setDate(dd.getDate()-1);while(vLog[dkey(dd)]){s2++;dd.setDate(dd.getDate()-1);}return s2;})();
+  useEffect(()=>{
+    if(!authed||profile!=='nereid'||meta===null||!dayLoaded)return;
+    const has=!!vLog[todayKey()];
+    if(vComplete&&!has){const nl={...vLog,[todayKey()]:true};const ks=Object.keys(nl).sort();while(ks.length>365){delete nl[ks.shift()];}saveMeta({voiceLog:nl});}
+    else if(!vComplete&&has){const nl={...vLog};delete nl[todayKey()];saveMeta({voiceLog:nl});}
+  },[vComplete,meta,authed,profile,dayLoaded]);
+  const [vt,setVt]=useState(null); // {key,label,endAt,total,kind,left}
+  useEffect(()=>{
+    if(!vt)return;
+    const tick=()=>{
+      const left=Math.max(0,Math.round((vt.endAt-Date.now())/1000));
+      if(left<=0){
+        if(vt.kind==='check')setV({[vt.key]:true});
+        if(vt.kind==='steam')setV({steam:(vc.steam||0)+1});
+        flash('SESSION DONE ✓');
+        setVt(null);
+        return;
+      }
+      setVt(v=>v&&v.endAt===vt.endAt?{...v,left}:v);
+    };
+    const t=setInterval(tick,500);
+    const onVis=()=>{if(document.visibilityState==='visible')tick();};
+    document.addEventListener('visibilitychange',onVis);
+    tick();
+    return ()=>{clearInterval(t);document.removeEventListener('visibilitychange',onVis);};
+  },[vt&&vt.endAt]);
+  const fmtT=(s2)=>Math.floor(s2/60)+':'+String(s2%60).padStart(2,'0');
+  const [histMonth,setHistMonth]=useState(()=>{const dd=new Date();return new Date(dd.getFullYear(),dd.getMonth(),1);});
+  const [histSel,setHistSel]=useState(null);
+  const vhist=meta?.vhist||{};
+  const vSumNow=JSON.stringify({b:(vc.straw?1:0)|(vc.metal?2:0)|(vc.warmup?4:0)|(vc.stretch?8:0),n:vc.neb||0,s:vc.steam||0,f:vc.feel||0,sc:sirenScore,ok:vComplete?1:0});
+  useEffect(()=>{
+    if(!authed||profile!=='nereid'||meta===null||!dayLoaded)return;
+    if(JSON.stringify(vhist[todayKey()]||null)===vSumNow)return;
+    const nh={...vhist,[todayKey()]:JSON.parse(vSumNow)};
+    const ks=Object.keys(nh).sort();
+    while(ks.length>400){delete nh[ks.shift()];}
+    saveMeta({vhist:nh});
+  },[vSumNow,authed,profile,meta,dayLoaded]);
+  const histCells=(()=>{
+    const y=histMonth.getFullYear(),m=histMonth.getMonth();
+    const first=new Date(y,m,1);
+    const cells=[];
+    for(let i=0;i<first.getDay();i++)cells.push(null);
+    const dd=new Date(y,m,1);
+    while(dd.getMonth()===m){cells.push(dkey(dd));dd.setDate(dd.getDate()+1);}
+    return cells;
+  })();
+  const histStats=(()=>{
+    const entries=histCells.filter(Boolean).map(k=>[k,vhist[k]]).filter(([,v])=>v);
+    if(!entries.length)return null;
+    const comp=entries.filter(([,v])=>v.ok).length;
+    const avg=Math.round(entries.reduce((s2,[,v])=>s2+v.sc,0)/entries.length);
+    let best=entries[0];for(const e2 of entries)if(e2[1].sc>best[1].sc)best=e2;
+    const missCount=[0,0,0,0];
+    for(const [,v] of entries)for(let i=0;i<4;i++)if(!(v.b&(1<<i)))missCount[i]++;
+    let worst=0;for(let i=1;i<4;i++)if(missCount[i]>missCount[worst])worst=i;
+    return {n:entries.length,comp,avg,bestK:best[0],bestSc:best[1].sc,worstLabel:missCount[worst]>0?VOICE_CHECKS[worst][2]:null,worstN:missCount[worst]};
+  })();
+  const scTier=(sc)=>sc>=90?{bg:'var(--amber)',op:1}:sc>=60?{bg:'var(--cy)',op:1}:sc>=30?{bg:'var(--cy)',op:.5}:{bg:'var(--dim2)',op:.5};
+
+  const aiPanel=html`
+    <div class="ai">
+      <div class="ptitle" style="margin-bottom:8px"><span>${profile==='nereid'?'AI MACRO SCAN':'AI MACRO SCAN'}</span>
+        <b>${aiMeta?.key?'ONLINE':'KEY REQUIRED'}</b></div>
+      ${aiMeta?.key?html`
+        <label class="btn wide" style="display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;margin-bottom:8px;border-color:var(--cy)">
+          SNAP THE PLATE
+          <input type="file" accept="image/*" capture="environment" style="display:none"
+            onChange=${e=>{const f2=e.target.files&&e.target.files[0];e.target.value='';if(f2)photoScan(f2);}} />
+        </label>
+        ${aiImg&&html`<img src=${aiImg.prev} style="width:100%;max-height:180px;object-fit:cover;border-radius:12px;border:1px solid var(--edge);margin-bottom:8px"/>`}
+        <textarea placeholder=${profile==='nereid'?'…or describe it: "big greek salad with feta, olive oil, grilled chicken and half a pita"':'…or describe it: "two beef gyros with fries and tzatziki"'} value=${aiTxt} onInput=${e=>setAiTxt(e.target.value)}></textarea>
+        ${aiBusy&&html`<div class="scanline"></div>`}
+        ${!aiBusy&&html`<button class="btn wide mt8" onClick=${scanMeal}>SCAN FROM TEXT</button>`}
+        ${aiRes&&html`
+          <div class="aires">
+            <div style="display:flex;justify-content:space-between;align-items:baseline">
+              <b>${aiRes.n}</b>
+              ${aiRes.conf&&html`<span style=${{fontSize:'9.5px',letterSpacing:'.14em',fontWeight:'800',
+                color:aiRes.conf==='high'?'var(--green)':aiRes.conf==='medium'?'var(--amber)':'var(--red)'}}>
+                ${aiRes.conf.toUpperCase()} CONFIDENCE</span>`}
+</div>
+            ${aiRes.kcal} KCAL · P${aiRes.p} · C${aiRes.c} · F${aiRes.f}
+            ${aiRes.qs&&aiRes.qs.length>0&&html`
+              <div style="border-top:1px dashed var(--edge2);margin-top:9px;padding-top:8px">
+                <div class="lbl" style="margin-bottom:5px"> ANSWER TO SHARPEN THE ESTIMATE</div>
+                ${aiRes.qs.map((q,i)=>html`<div style="font-size:12.5px;line-height:1.5;padding:2px 0" key=${i}>· ${q}</div>`)}
+                <div class="row mt8">
+                  <input style="flex:2" placeholder='e.g. "normal dinner plate, cooked in olive oil, one cup of rice"' value=${aiAns} onInput=${e=>setAiAns(e.target.value)} onKeyDown=${e=>{if(e.key==='Enter')refineScan();}} />
+                  <button class="btn" onClick=${refineScan}>REFINE ↺</button>
+</div>
+</div>`}
+            <div class="row mt10">
+              <button class="btn solid" onClick=${()=>{addMeal(aiRes);clearScan();}}>LOG IT</button>
+              <button class="btn" onClick=${()=>{saveMeta({foods:[...foods,{id:'f'+Date.now().toString(36),e:'',n:aiRes.n,kcal:aiRes.kcal,p:aiRes.p,c:aiRes.c,f:aiRes.f}]});flash('SAVED TO QUICK FUEL');}}>+ LIST</button>
+              <button class="ghost" onClick=${clearScan}>✕</button>
+</div>
+</div>`}
+      `:html`
+        <div class="dim" style="font-size:12.5px;margin-bottom:8px">Paste an Anthropic API key once to power the AI tools (both profiles share it).</div>
+        <div class="row">
+          <input style="flex:2" placeholder="sk-ant-…" value=${aiKeyIn} onInput=${e=>setAiKeyIn(e.target.value)} />
+          <button class="btn" onClick=${()=>{if(aiKeyIn.trim()){saveAiKey(aiKeyIn);setAiKeyIn('');flash('AI ONLINE');}}}>SAVE</button>
+</div>
+      `}
+</div>`;
+
+  const [hist,setHist]=useState(null); // {dateKey: dayDoc} for the last 14 days
+  const [histSel2,setHistSel2]=useState(null);
+  const [histMode,setHistMode]=useState('kcal');
+  useEffect(()=>{
+    if((tab!=='fuel'&&tab!=='cmd')||!authed||fetched14.current)return;
+    fetched14.current=true;
+    (async()=>{
+      const days=[];
+      for(let i=1;i<=14;i++){const dd=new Date();dd.setDate(dd.getDate()-i);days.push(dkey(dd));}
+      const out={};
+      try{
+        const snaps=await Promise.all(days.map(k=>getDoc(D(P.dayPrefix+k)).catch(()=>null)));
+        snaps.forEach((s,i)=>{if(s&&s.exists())out[days[i]]=s.data();});
+      }catch(e){}
+      setHist(h=>({...(h||{}),...out}));
+    })();
+  },[tab,authed,profile]);
+  useEffect(()=>{setHist(null);setHistSel2(null);setVt(null);},[profile]);
+  const [backfill,setBackfill]=useState(null); // {n,kcal,p,c,f,pick} form for past-day logging
+  async function addMealTo(k,f2){
+    const base=(hist&&hist[k])||{meals:[],supps:{},inj:null,water:0};
+    const nd={...base,meals:[...(base.meals||[]),{id:Date.now().toString(36),t:'backfill',hour:13,n:f2.n,kcal:+f2.kcal||0,p:+f2.p||0,c:+f2.c||0,f:+f2.f||0}]};
+    try{
+      await setDoc(D(P.dayPrefix+k),nd);
+      setHist({...hist,[k]:nd});
+      flash('LOGGED TO '+k.slice(5)+' ✓');
+    }catch(e){setErr('Backfill save failed. '+(e.message||e));}
+  }
+  async function delMealFrom(k,id){
+    const base=hist&&hist[k]; if(!base)return;
+    const nd={...base,meals:(base.meals||[]).filter(m=>m.id!==id)};
+    try{
+      await setDoc(D(P.dayPrefix+k),nd);
+      setHist({...hist,[k]:nd});
+    }catch(e){setErr('Delete failed. '+(e.message||e));}
+  }
+  const dayMac=(dd)=>{
+    const s={kcal:0,p:0,c:0,f:0};
+    for(const m of (dd.meals||[])){s.kcal+=m.kcal||0;s.p+=m.p||0;s.c+=m.c||0;s.f+=m.f||0;}
+    return s;
+  };
+  const ledgerDays=(()=>{
+    const out=[];
+    for(let i=13;i>=1;i--){
+      const dd=new Date();dd.setDate(dd.getDate()-i);const k=dkey(dd);
+      out.push({k,doc:hist?hist[k]:null,live:false});
+    }
+    out.push({k:todayKey(),doc:d,live:true});
+    return out;
+  })();
+  const ledgerLogged=ledgerDays.filter(x=>x.doc&&(x.doc.meals||[]).length>0);
+  const ledgerAvg=(()=>{
+    if(!ledgerLogged.length)return null;
+    let kc=0,pr=0,hit=0;
+    for(const x of ledgerLogged){const m=dayMac(x.doc);kc+=m.kcal;pr+=m.p;if(m.p>=T.protein)hit++;}
+    return {kcal:Math.round(kc/ledgerLogged.length),p:Math.round(pr/ledgerLogged.length),hit};
+  })();
+  const [sMonth,setSMonth]=useState(()=>{const dd=new Date();return new Date(dd.getFullYear(),dd.getMonth(),1);});
+  const [sSel,setSSel]=useState(null);
+  const [sAdd,setSAdd]=useState(null);
+  const [tMonth,setTMonth]=useState(()=>{const dd=new Date();return new Date(dd.getFullYear(),dd.getMonth(),1);});
+  const [tSel,setTSel]=useState(null);
+  const [tAdd,setTAdd]=useState(null);
+  const monthCells=(mo)=>{
+    const y=mo.getFullYear(),m=mo.getMonth();
+    const first=new Date(y,m,1);const cells=[];
+    for(let i=0;i<first.getDay();i++)cells.push(null);
+    const dd=new Date(y,m,1);
+    while(dd.getMonth()===m){cells.push(dkey(dd));dd.setDate(dd.getDate()+1);}
+    return cells;
+  };
+  async function toggleSuppOn(k,name){
+    const base=dayDocFor(k)||{meals:[],supps:{},inj:null,water:0};
+    const nd={...base,supps:{...(base.supps||{}),[name]:!(base.supps||{})[name]}};
+    try{await setDoc(D(P.dayPrefix+k),nd);setHist({...(hist||{}),[k]:nd});}
+    catch(e){setErr('Save failed. '+(e.message||e));}
+  }
+  const [fMonth,setFMonth]=useState(()=>{const dd=new Date();return new Date(dd.getFullYear(),dd.getMonth(),1);});
+  const [fLoading,setFLoading]=useState(false);
+  const monthsFetched=useRef({});
+  const fetched14=useRef(false);
+  useEffect(()=>{
+    if((tab!=='fuel'&&tab!=='cmd'&&tab!=='stack')||!authed)return;
+    const mo=tab==='stack'?sMonth:fMonth;
+    const mk=mo.getFullYear()+'-'+mo.getMonth();
+    if(monthsFetched.current[mk])return;
+    monthsFetched.current[mk]=true;
+    const y=mo.getFullYear(),m=mo.getMonth();
+    const keys=[];const dd=new Date(y,m,1);const tk=todayKey();
+    while(dd.getMonth()===m){const k=dkey(dd);if(k<=tk)keys.push(k);dd.setDate(dd.getDate()+1);}
+    if(!keys.length)return;
+    setFLoading(true);
+    (async()=>{
+      try{
+        const snaps=await Promise.all(keys.map(k=>getDoc(D(P.dayPrefix+k)).catch(()=>null)));
+        const out={};
+        snaps.forEach((s,i)=>{if(s&&s.exists())out[keys[i]]=s.data();});
+        setHist(h=>({...(h||{}),...out}));
+      }catch(e){}
+      setFLoading(false);
+    })();
+  },[tab,authed,fMonth,sMonth,profile]);
+  useEffect(()=>{monthsFetched.current={};fetched14.current=false;},[profile]);
+  const fCells=(()=>{
+    const y=fMonth.getFullYear(),m=fMonth.getMonth();
+    const first=new Date(y,m,1);
+    const cells=[];
+    for(let i=0;i<first.getDay();i++)cells.push(null);
+    const dd=new Date(y,m,1);
+    while(dd.getMonth()===m){cells.push(dkey(dd));dd.setDate(dd.getDate()+1);}
+    return cells;
+  })();
+  const dayDocFor=(k)=>k===todayKey()?d:(hist?hist[k]:null);
+  const fStats=(()=>{
+    const logged=fCells.filter(Boolean).map(k=>[k,dayDocFor(k)]).filter(([,v])=>v&&(v.meals||[]).length>0);
+    if(!logged.length)return null;
+    let kc=0,pr=0,hit=0;let best=logged[0];
+    for(const [k,v] of logged){const m2=dayMac(v);kc+=m2.kcal;pr+=m2.p;if(m2.p>=T.protein)hit++;if(dayMac(v).kcal>dayMac(best[1]).kcal)best=[k,v];}
+    return {n:logged.length,kcal:Math.round(kc/logged.length),p:Math.round(pr/logged.length),hit,bestK:best[0],bestV:dayMac(best[1]).kcal};
+  })();
+  const ledgerMax=Math.max(T[histMode==='kcal'?'kcal':'protein'],...ledgerDays.map(x=>x.doc?dayMac(x.doc)[histMode==='kcal'?'kcal':'p']:0))||1;
+  const ledgerPanel=html`
+    <div class="panel">
+      <div class="ptitle">
+        <span>THE LEDGER</span>
+        <b>
+          <button class="ghost" style="padding:0 8px;font-size:14px" onClick=${()=>{setFMonth(new Date(fMonth.getFullYear(),fMonth.getMonth()-1,1));setHistSel2(null);setBackfill(null);}}>◀</button>
+          ${fMonth.toLocaleDateString(undefined,{month:'long',year:'numeric'}).toUpperCase()}
+          <button class="ghost" style="padding:0 8px;font-size:14px" onClick=${()=>{setFMonth(new Date(fMonth.getFullYear(),fMonth.getMonth()+1,1));setHistSel2(null);setBackfill(null);}}>▶</button>
+</b>
+</div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:6px">
+        <b style="font-size:10px;letter-spacing:.1em">
+          <button class=${'ghost'+(histMode==='kcal'?'':' dim')} style="padding:0 6px" onClick=${()=>setHistMode('kcal')}>KCAL</button>·
+          <button class=${'ghost'+(histMode==='protein'?'':' dim')} style="padding:0 6px" onClick=${()=>setHistMode('protein')}>PROTEIN</button>
+</b>
+</div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px">
+        ${['S','M','T','W','T','F','S'].map((dl,i)=>html`<div class="dim" style="text-align:center;font-size:9px;letter-spacing:.1em" key=${'h'+i}>${dl}</div>`)}
+        ${fCells.map((k,i)=>{
+          if(!k)return html`<div key=${'e'+i}></div>`;
+          const future=k>todayKey();
+          const dd2=dayDocFor(k);
+          const has=dd2&&(dd2.meals||[]).length>0;
+          const v=has?dayMac(dd2)[histMode==='kcal'?'kcal':'p']:0;
+          const tv=histMode==='kcal'?T.kcal:T.protein;
+          const pct=v/tv;
+          return html`
+            <button key=${k} disabled=${future} onClick=${()=>{setHistSel2(histSel2===k?null:k);setBackfill(null);}}
+              style=${{aspectRatio:'1',borderRadius:'9px',cursor:future?'default':'pointer',fontFamily:'inherit',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:'1px',
+                border:(k===todayKey()?'1.5px solid var(--cy)':histSel2===k?'1.5px solid var(--txt)':'1px solid var(--edge)'),
+                background:!has?'transparent':pct>=0.95?'var(--green)':pct>=0.7?'var(--amber)':'var(--dim2)',
+                opacity:future?.25:has?1:.6,
+                color:has&&pct>=0.7?'#052018':'var(--dim)'}}>
+              <span style="font-size:11px;font-weight:700">${+k.slice(8)}</span>
+              ${has&&html`<span style="font-size:9px;font-weight:700">${histMode==='kcal'?Math.round(v/100)/10+'k':v+'g'}</span>`}
+            </button>`;
+        })}
+</div>
+      <div class="dim" style="display:flex;justify-content:space-between;font-size:9px;letter-spacing:.06em;margin-top:6px">
+        <span>▮ TARGET HIT · ▮ CLOSE · ▮ LIGHT · TAP ANY DAY</span>
+        <span>${fLoading?'⏳ loading…':''}</span>
+</div>
+      ${fStats?html`
+        <div class="dim" style="font-size:11.5px;line-height:1.7;margin-top:8px">
+          ${fStats.n} day${fStats.n===1?'':'s'} logged this month · avg ${fStats.kcal} kcal · avg ${fStats.p}g protein · protein target hit ${fStats.hit}× · biggest day ${fStats.bestV} kcal (${fStats.bestK.slice(5)})
+</div>`:html`<div class="empty" style="padding:8px 0">NOTHING LOGGED THIS MONTH${fLoading?'YET…':' — TAP A DAY TO BACKFILL IT'}</div>`}
+      ${histSel2&&(()=>{
+        const k=histSel2;
+        const live=k===todayKey();
+        const doc2=dayDocFor(k);
+        const x={k,doc:doc2,live};
+        if(!x.doc)return html`
+          <div style="border:1px dashed var(--edge2);border-radius:11px;padding:12px;margin-top:10px;text-align:center">
+            <div class="dim" style="font-size:12px;margin-bottom:8px">NOTHING LOGGED ON ${k.slice(5)}</div>
+            <button class="btn wide" onClick=${()=>{setHist({...(hist||{}),[k]:{meals:[],supps:{},inj:null,water:0}});setBackfill({pick:''});}}>＋ LOG WHAT YOU MISSED</button>
+</div>`;
+        const m=dayMac(x.doc);
+        return html`
+          <div style="border:1px dashed var(--edge2);border-radius:11px;padding:12px;margin-top:10px">
+            <div class="ptitle" style="margin-bottom:6px">
+              <span>${new Date(k+'T12:00:00').toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'}).toUpperCase()}${x.live?' · LIVE':''}</span>
+              <b>${m.kcal} KCAL</b>
+</div>
+            <div class="dim" style="font-size:11.5px;margin-bottom:8px">P ${m.p}g · C ${m.c}g · F ${m.f}g · ${x.doc.water||0} glasses</div>
+            ${(x.doc.meals||[]).map((ml,i)=>html`
+              <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;padding:3px 0" key=${ml.id||i}>
+                <span>${ml.e||''} ${ml.n}${ml.t==='backfill'?html`<span class="dim" style="font-size:9px"> · added later</span>`:''}</span>
+                <span class="dim" style="font-size:11px">${ml.kcal} · ${ml.p}p
+                  ${!x.live&&ml.id&&html`<button class="ghost" style="color:var(--red);padding:0 4px" onClick=${()=>delMealFrom(x.k,ml.id)}>✕</button>`}
+</span>
+</div>`)}
+            ${(x.doc.meals||[]).length===0&&html`<div class="dim" style="font-size:12px">No meals logged.</div>`}
+            ${!x.live&&html`
+              <div style="border-top:1px dashed var(--edge2);margin-top:8px;padding-top:8px">
+                ${backfill===null?html`
+                  <button class="btn wide" onClick=${()=>setBackfill({pick:''})}>＋ LOG WHAT YOU MISSED</button>
+                `:html`
+                  <div class="lbl" style="margin-bottom:5px">ADD TO ${x.k.slice(5)}</div>
+                  <select value=${backfill.pick} onChange=${e=>{
+                      const f2=foods.find(ff=>ff.id===e.target.value);
+                      if(f2){addMealTo(x.k,f2);setBackfill(null);}
+                    }} style="width:100%;margin-bottom:8px">
+                    <option value="">— pick from your quick-fuel list —</option>
+                    ${foods.map(f2=>html`<option value=${f2.id} key=${f2.id}>${f2.n} (${f2.kcal} kcal)</option>`)}
+                  </select>
+                  <input placeholder="…or custom: name" value=${backfill.n||''} onInput=${e=>setBackfill({...backfill,n:e.target.value})} />
+                  <div class="row mt8">
+                    <input inputmode="numeric" placeholder="kcal" value=${backfill.kcal||''} onInput=${e=>setBackfill({...backfill,kcal:e.target.value})} />
+                    <input inputmode="numeric" placeholder="P g" value=${backfill.p||''} onInput=${e=>setBackfill({...backfill,p:e.target.value})} />
+                    <input inputmode="numeric" placeholder="C g" value=${backfill.c||''} onInput=${e=>setBackfill({...backfill,c:e.target.value})} />
+                    <input inputmode="numeric" placeholder="F g" value=${backfill.f||''} onInput=${e=>setBackfill({...backfill,f:e.target.value})} />
+</div>
+                  <div class="row mt8">
+                    <button class="btn solid" onClick=${()=>{
+                      if(!(backfill.n||'').trim()){setErr('Give the meal a name.');return;}
+                      addMealTo(x.k,{n:backfill.n.trim(),kcal:backfill.kcal,p:backfill.p,c:backfill.c,f:backfill.f});
+                      setBackfill(null);
+                    }}>ADD IT</button>
+                    <button class="ghost" onClick=${()=>setBackfill(null)}>CANCEL</button>
+</div>
+                `}
+</div>`}
+</div>`;
+      })()}
+</div>`;
+  const nextUp=(()=>{
+    const items=[];
+    if(P.peptides){
+      if(schedToday('ghk')&&!injToday('ghk'))items.push(['stack','›','GHK-Cu shot — morning window']);
+      if(schedToday('cjc')&&!injToday('cjc'))items.push(['stack','›','CJC/Ipa shot — tonight, fasted']);
+    }
+    if(d.meals.length===0)items.push(['fuel','›','Log your first meal — the day starts when you fuel it']);
+    else if(tot.p<T.protein*0.5&&new Date().getHours()>=14)items.push(['fuel','›',Math.round(T.protein-tot.p)+'g protein still to land']);
+    if((d.water||0)<waterGoal)items.push(['fuel','›',(waterGoal-(d.water||0))+' glasses of water to go']);
+    const planToday=plan.some(p2=>p2.date===todayKey());
+    if(planToday&&!trainedToday)items.push(['train','›','Training is on the plan today']);
+    if(!P.peptides&&!vComplete)items.push(['voice','›','Voice ritual — '+(6-vDone)+' to go']);
+    const done=suppList.length>0&&suppDone<suppList.length;
+    if(done)items.push(['stack','›',(suppList.length-suppDone)+' supplements left in the stack']);
+    return items.slice(0,4);
+  })();
+  const headliner=!P.peptides&&showDiff&&html`
+    <div class="showcase">
+      ${showDiff.ms>0?html`
+        <${Fragment}>
+          <div class="swho">ANTIGONI PRESENTS</div>
+          <div class="stitle"> ${showName}</div>
+          <div class="cdrow">
+            <div class="cd"><b>${Math.max(0,showDiff.days)}</b><span>DAYS</span></div>
+            <div class="cd"><b>${String(showDiff.h).padStart(2,'0')}</b><span>HRS</span></div>
+            <div class="cd"><b>${String(showDiff.m).padStart(2,'0')}</b><span>MIN</span></div>
+            <div class="cd"><b>${String(showDiff.s).padStart(2,'0')}</b><span>SEC</span></div>
+</div>
+          ${showLine&&html`<div class="sline">${showLine}</div>`}
+        <//>
+      `:showDiff.after<=3?html`
+        <${Fragment}>
+          <div class="swho">SUNDAY · CYPRUS</div>
+          <div class="stitle"> SHE HEADLINED.</div>
+          <div class="sline">First of many. The island knows her name now.</div>
+        <//>
+      `:html`
+        <div class="sline"> Next show? <button class="ghost" onClick=${()=>setShowEdit({date:'',name:''})}>set the date</button></div>
+      `}
+      ${showEdit===null?html`
+        ${showDiff.ms>0&&html`<button class="ghost" style="font-size:10px;opacity:.6" onClick=${()=>setShowEdit({date:showDate,name:showName})}>✎ edit</button>`}
+      `:html`
+        <div class="row mt8" onClick=${e=>e.stopPropagation()}>
+          <input type="date" value=${showEdit.date} onInput=${e=>setShowEdit({...showEdit,date:e.target.value})} />
+          <input placeholder="Show name" value=${showEdit.name} onInput=${e=>setShowEdit({...showEdit,name:e.target.value})} />
+</div>
+        <div class="row mt8">
+          <button class="btn solid" onClick=${()=>{
+            if(!showEdit.date){setErr('Pick the show date.');return;}
+            saveMeta({showDate:showEdit.date,showName:(showEdit.name||'HEADLINE SHOW').toUpperCase()});
+            setShowEdit(null);flash('SHOW LOCKED IN');
+          }}>SAVE</button>
+          <button class="ghost" onClick=${()=>setShowEdit(null)}>CANCEL</button>
+</div>
+      `}
+</div>`;
+  const cmdTab=html`
+    <${Fragment}>
+      ${headliner}
+      ${dayLoaded&&html`
+        <div class="panel">
+          <div class="ptitle"><span> NEXT UP</span><b>${nextUp.length===0?'ALL CLEAR':nextUp.length+' TO GO'}</b></div>
+          ${nextUp.length===0&&html`<div style="font-size:14px;color:var(--green);font-weight:600">Everything handled — the sun is earned.</div>`}
+          ${nextUp.map(([go,ic,txt],i)=>html`
+            <button key=${i} onClick=${()=>setTab(go)}
+              style="all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;width:100%;padding:9px 4px;border-bottom:1px solid var(--edge);font-size:14px">
+              <span style="font-size:17px">${ic}</span>
+              <span style="flex:1">${txt}</span>
+              <span class="dim" style="font-size:12px">›</span>
+            </button>`)}
+</div>`}
+      <div class="panel">
+        <div class="ptitle"><span>MACRO TELEMETRY</span><b>${Math.max(0,T.kcal-tot.kcal)} KCAL REMAINING</b></div>
+        <div class="rings">
+          <${Ring} v=${tot.kcal} max=${T.kcal} label="KCAL" col="sun" />
+          <${Ring} v=${tot.p} max=${T.protein} label="PROTEIN" unit="g" col=${tot.p>=T.protein?'#3ECF8E':'#FFC65C'} />
+</div>
+        <div class="minibars">
+          <div class="mb"><div class="l"><span>CARBS</span><span>${Math.round(tot.c)} / ${T.carbs}g</span></div>
+            <div class="track"><div class="fill" style=${{width:Math.min(100,tot.c/T.carbs*100)+'%',background:'var(--amber)'}}></div></div></div>
+          <div class="mb"><div class="l"><span>FAT</span><span>${Math.round(tot.f)} / ${T.fat}g</span></div>
+            <div class="track"><div class="fill" style=${{width:Math.min(100,tot.f/T.fat*100)+'%',background:'#B07EFF'}}></div></div></div>
+</div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:10px;padding-top:9px;border-top:1px solid var(--edge)">
+          <b style=${{fontSize:'12.5px',letterSpacing:'.08em',color:tot.p>=T.protein?'var(--green)':'var(--amber)'}}>
+            ${tot.p>=T.protein?'PROTEIN TARGET HIT ✓':Math.round(T.protein-tot.p)+'g PROTEIN TO GO'}
+</b>
+          <span class="dim" style="font-size:11px">
+            ${hist===null?'…':'LOGGED '+(ledgerDays.slice(-7).filter(x=>x.doc&&(x.doc.meals||[]).length>0).length)+' OF LAST 7 DAYS'}
+</span>
+</div>
+</div>
+      <div class="statgrid">
+        ${P.peptides?html`
+          <div class=${'stat '+(preNoonPct>=50?'good':'warn')}>
+            <div class="k">FRONT-LOAD // PRE-NOON</div>
+            <div class="v">${preNoonPct}<small>%</small></div>
+</div>
+          <div class=${'stat '+(cutMin>0?(cutMin<90?'warn':''):'bad')}>
+            <div class="k">FEEDING WINDOW → ${T.cutoff||'21:00'}</div>
+            <div class="v">${cutStr}</div>
+</div>
+          <div class=${'stat '+((!schedToday('cjc')||injToday('cjc'))&&(!schedToday('ghk')||injToday('ghk'))?'good':'warn')}>
+            <div class="k">PEPTIDES — GHK AM · CJC PM</div>
+            <div class="v" style="font-size:14px;line-height:1.6">
+              GHK ${injToday('ghk')?'✓':schedToday('ghk')?'DUE':'—'}<br/>CJC ${injToday('cjc')?'✓':schedToday('cjc')?'DUE':'—'}
+</div>
+</div>
+        `:html`
+          <button class=${'stat '+(d.water>=waterGoal?'good':'')} style="cursor:pointer;text-align:left;font-family:inherit" onClick=${()=>saveDay({...d,water:(d.water||0)+1})}>
+            <div class="k">HYDRATION · VOICE FUEL — TAP +1</div>
+            <div class="v">${d.water||0}<small> / ${waterGoal} glasses</small>
+              ${(d.water||0)>0&&html`<span class="wminus" onClick=${e=>{e.stopPropagation();saveDay({...d,water:Math.max(0,(d.water||0)-1)});}}>−</span>`}
+</div>
+          </button>
+          <div class=${'stat '+(d.meals.length>0?'good':'')}>
+            <div class="k">MEALS LOGGED</div>
+            <div class="v">${d.meals.length}</div>
+</div>
+          <button class=${'stat '+(vComplete?'good':vDone>0?'warn':'')} style="cursor:pointer;text-align:left;font-family:inherit" onClick=${()=>setTab('voice')}>
+            <div class="k">VOICE RITUAL</div>
+            <div class="v">${vComplete?'READY ✓':html`${vDone}<small> / 6</small>`}</div>
+          </button>
+        `}
+        <div class=${'stat '+(suppDone===suppList.length&&suppList.length>0?'good':'')}>
+          <div class="k">STACK COMPLIANCE</div>
+          <div class="v">${suppDone}<small> / ${suppList.length}</small></div>
+</div>
+        <button class=${'stat '+(trainedToday?'good':'')} style="cursor:pointer;text-align:left;font-family:inherit" onClick=${()=>setTab('train')}>
+          <div class="k">TRAINING</div>
+          <div class="v">${trainedToday?'DONE ✓':weekTrainCount+'× THIS WK'}</div>
+        </button>
+</div>
+      <div class="panel">
+        <div class="ptitle"><span>MISSION</span><b class="tminus">${daysToGoal!==null?`T-MINUS ${daysToGoal} DAYS → ${P.goalLabel}`:(P.peptides?'SET A GOAL DATE IN BODY TAB':'SET THE NEXT SHOWTIME IN BODY TAB')}</b></div>
+        <div class="dim" style="font-family:var(--mono);font-size:12px">
+          ${lastW?`LAST BODYWEIGHT ${toDisp(lastW.w)} ${uLabel}`:'NO BODYWEIGHT DATA — LOG IN BODY TAB'}
+          ${wTrend?` · TREND ${wTrend.perWeek>=0?'+':''}${toDisp(wTrend.perWeek).toFixed(2)} ${uLabel}/WK`:''}
+</div>
+</div>
+    <//>`;
+
+  const fuelTab=html`
+    <${Fragment}>
+      <div class="panel">
+        ${aiPanel}
+</div>
+      <div class="panel" style="padding-bottom:${qfOpen?'':'10px'}">
+        <button onClick=${toggleQf} style="all:unset;cursor:pointer;display:flex;justify-content:space-between;align-items:baseline;width:100%">
+          <span class="ptitle" style="margin:0"><span>${qfOpen?'▾':'▸'} QUICK FUEL — SAVED FOODS</span></span>
+          <b style="font-size:11px;letter-spacing:.1em;color:var(--dim)">${foods.length} SAVED${qfOpen?'':' · TAP TO OPEN'}</b>
+        </button>
+        ${qfOpen&&html`
+          <${Fragment}>
+            <div class="row" style="margin-top:10px;align-items:center">
+              ${foods.length>5?html`<input style="flex:3" placeholder="Search your foods…" value=${foodQ} onInput=${e=>setFoodQ(e.target.value)}/>`:html`<span style="flex:3"></span>`}
+              <button class="ghost" style="flex:0 0 auto;padding:0 8px" onClick=${()=>setFoodEdit(!foodEdit)}>${foodEdit?'DONE':'EDIT'}</button>
+</div>
+            ${foods.length===0&&html`<div class="empty">BUILD YOUR QUICK LIST — SCAN A MEAL WITH AI OR ADD A CUSTOM ENTRY, THEN SAVE IT</div>`}
+            <div style="margin-top:8px">
+            ${foods.filter(f2=>!foodQ.trim()||f2.n.toLowerCase().includes(foodQ.trim().toLowerCase())).map(f2=>html`
+              <button class="fpick" key=${f2.id} style=${foodEdit?{borderColor:'var(--red)'}:{}}
+                onClick=${()=>{
+                  if(foodEdit){if(confirm('Remove "'+f2.n+'" from your quick list?'))saveMeta({foods:foods.filter(x=>x.id!==f2.id)});return;}
+                  addMeal(f2);
+                }}>
+                <div class="ico">${foodEdit?'✕':(f2.e||'')}</div>
+                <div class="nm">${f2.n}<div class="mac">P${f2.p} · C${f2.c} · F${f2.f}</div></div>
+                <div class="kc">${f2.kcal}</div>
+              </button>`)}
+</div>
+            ${foodQ.trim()&&foods.filter(f2=>f2.n.toLowerCase().includes(foodQ.trim().toLowerCase())).length===0&&html`<div class="empty" style="padding:8px 0">NO MATCH — ADD IT AS A CUSTOM ENTRY BELOW</div>`}
+            ${foodForm?html`
+              <div class="panel" style="margin:6px 0 0">
+                <input placeholder="Food name" value=${foodForm.n||''} onInput=${e=>setFoodForm({...foodForm,n:e.target.value})} />
+                <div class="row mt8">
+                  <input inputmode="numeric" placeholder="kcal" value=${foodForm.kcal||''} onInput=${e=>setFoodForm({...foodForm,kcal:e.target.value})} />
+                  <input inputmode="numeric" placeholder="P g" value=${foodForm.p||''} onInput=${e=>setFoodForm({...foodForm,p:e.target.value})} />
+                  <input inputmode="numeric" placeholder="C g" value=${foodForm.c||''} onInput=${e=>setFoodForm({...foodForm,c:e.target.value})} />
+                  <input inputmode="numeric" placeholder="F g" value=${foodForm.f||''} onInput=${e=>setFoodForm({...foodForm,f:e.target.value})} />
+</div>
+                <label style="display:flex;gap:8px;align-items:center;margin:10px 0;font-size:13px;color:var(--dim);cursor:pointer">
+                  <input type="checkbox" style="width:auto" checked=${!!foodForm.save} onChange=${e=>setFoodForm({...foodForm,save:e.target.checked})} />
+                  Save to quick-fuel list
+                </label>
+                <div class="row">
+                  <button class="btn solid" onClick=${submitCustom}>LOG IT</button>
+                  <button class="ghost" onClick=${()=>setFoodForm(null)}>CANCEL</button>
+</div>
+</div>
+            `:html`<div class="row mt8"><button class="btn" onClick=${()=>setFoodForm({})}>+ CUSTOM ENTRY</button><button class="btn" onClick=${copyYesterday}>↻ YESTERDAY</button></div>`}
+          <//>`}
+</div>
+      <div class="panel">
+        <div class="ptitle"><span>TODAY'S LOG</span><b>${Math.round(tot.kcal)} KCAL · ${Math.round(tot.p)}g P</b></div>
+        ${d.meals.length===0&&html`<div class="empty">NO FUEL LOGGED</div>`}
+        ${[...d.meals].reverse().map(m=>html`
+          <div class="meal" key=${m.id}>
+            <span class="t">${m.t}</span>
+            <span style="flex:1;padding:0 8px">${m.n}</span>
+            <span class="m">${m.kcal} · P${m.p}</span>
+            <button class="x" style="color:var(--cy);margin-right:2px" title="log again" onClick=${()=>addMeal({n:m.n,kcal:m.kcal,p:m.p,c:m.c,f:m.f})}>↻</button>
+            <button class="x" onClick=${()=>delMeal(m.id)}>✕</button>
+</div>`)}
+</div>
+      ${ledgerPanel}
+    <//>`;
+
+  const stackTab=html`
+    <${Fragment}>
+      ${P.peptides&&html`
+      ${['cjc','ghk'].map(cp=>{
+        const C3=COMPOUNDS[cp];
+        const done=injToday(cp);
+        const sched=schedToday(cp);
+        const sel=injSiteSel[cp];
+        const sugg=nextSiteFor(cp);
+        return html`
+        <div class="panel" key=${cp}>
+          <div class="ptitle"><span>${C3.label} — ${C3.when}</span>
+            <b>${done?'DOSED ✓':sched?'DUE TODAY':'OFF DAY'}</b></div>
+          ${done?html`
+            <div class="dim" style="font-family:var(--mono);font-size:12.5px">
+              LOGGED ${done.t} — SITE ${done.site}${C3.fasted?(done.fasted?' · FASTED ✓':' · NOT FASTED'):''}
+</div>
+            <button class="ghost mt10" style="color:var(--red)" onClick=${()=>undoInjection(cp)}>undo today's entry</button>
+          `:html`
+            ${!sched&&html`<div class="dim" style="font-family:var(--mono);font-size:12px;margin-bottom:8px">NOT SCHEDULED TODAY — LOG ANYWAY IF PROTOCOL SHIFTED</div>`}
+            <div class="lbl">SUBQ SITE — SUGGESTED: ${sugg}</div>
+            <div class="sitegrid">
+              ${SITES.map(([id,label])=>html`
+                <button class=${'site'+(sel===id?' on':id===sugg&&!sel?' sugg':'')} key=${id} onClick=${()=>setInjSiteSel({...injSiteSel,[cp]:id})}>
+                  ${label}
+                </button>`)}
+</div>
+            ${C3.fasted&&html`
+              <label style="display:flex;gap:8px;align-items:center;margin:6px 0 12px;font-size:13.5px;color:var(--dim);cursor:pointer">
+                <input type="checkbox" style="width:auto" checked=${injFasted} onChange=${e=>setInjFasted(e.target.checked)} />
+                Fasted (no food since ${T.cutoff||'21:00'} cutoff)
+              </label>`}
+            <button class="btn solid wide" style=${C3.fasted?{}:{marginTop:'10px'}} onClick=${()=>logInjection(cp)}>LOG ${cp==='cjc'?"TONIGHT'S SHOT":"MORNING SHOT"}</button>
+          `}
+          <div class="weekstrip">
+            ${[...Array(7)].map((_,i)=>{
+              const dt=new Date();dt.setDate(dt.getDate()-(6-i));
+              const k=dkey(dt);
+              const hit=injLog.some(x=>x.date===k&&compOf(x)===cp);
+              const isSched=C3.days.includes(dt.getDay());
+              return html`<div class=${'wd'+(hit?' hit':'')+(k===todayKey()?' today':'')} key=${k} style=${!isSched&&!hit?{opacity:.35}:{}}>
+                ${['S','M','T','W','T','F','S'][dt.getDay()]}<br/>${hit?'●':isSched?'○':'·'}
+</div>`;
+            })}
+</div>
+</div>`;
+      })}
+      <div class="panel">
+        <div class="ptitle"><span>INJECTION SITES</span>
+          <b><button class="ghost" style="padding:0 6px" onClick=${()=>setSiteEdit(!siteEdit)}>${siteEdit?'DONE':'EDIT'}</button></b>
+</div>
+        ${!siteEdit&&html`<div class="dim" style="font-size:12px">${SITES.map(s2=>s2[1]).join(' ·')}</div>`}
+        ${siteEdit&&html`
+          <${Fragment}>
+            ${SITES.map(([id,label])=>html`
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 2px;border-bottom:1px solid var(--edge);font-size:13.5px" key=${id}>
+                <span>${label}</span>
+                ${siteArm===id?html`
+                  <span style="display:flex;gap:8px;align-items:center">
+                    <button class="ghost" style="color:var(--red);font-weight:700;padding:0 4px" onClick=${()=>{
+                      if(SITES.length<=2){setErr('Keep at least 2 sites for rotation.');setSiteArm(null);return;}
+                      saveMeta({injSites:packSites(SITES.filter(s2=>s2[0]!==id))});setSiteArm(null);
+                    }}>remove?</button>
+                    <button class="ghost" style="padding:0 4px" onClick=${()=>setSiteArm(null)}>keep</button>
+</span>
+                `:html`
+                  <button class="ghost" style="color:var(--red);padding:0 6px" onClick=${()=>setSiteArm(id)}>✕</button>
+                `}
+</div>`)}
+            <div class="row mt8">
+              <input style="flex:2" placeholder='Add a site… e.g. "LEFT THIGH"' value=${siteAdd} onInput=${e=>setSiteAdd(e.target.value)}
+                onKeyDown=${e=>{if(e.key==='Enter'&&siteAdd.trim()){const nm=siteAdd.trim().toUpperCase();saveMeta({injSites:packSites([...SITES,[nm.slice(0,3)+Date.now().toString(36).slice(-2),nm]])});setSiteAdd('');}}} />
+              <button class="btn" onClick=${()=>{if(siteAdd.trim()){const nm=siteAdd.trim().toUpperCase();saveMeta({injSites:packSites([...SITES,[nm.slice(0,3)+Date.now().toString(36).slice(-2),nm]])});setSiteAdd('');}}}>ADD</button>
+</div>
+            <div class="dim" style="font-size:10.5px;margin-top:6px">Rotation cycles through this list in order. Removing a site skips it going forward; history keeps its name.</div>
+          <//>`}
+</div>`}
+      <div class="panel">
+        <div class="ptitle"><span>SUPPLEMENT STACK</span><b>${suppDone} / ${suppList.length} <button class="ghost" style="padding:0 6px" onClick=${()=>setSuppEdit(!suppEdit)}>${suppEdit?'DONE':'EDIT'}</button></b></div>
+        ${suppList.map(s2=>html`
+          <button class=${'supp'+(d.supps[s2]?' on':'')} key=${s2} onClick=${()=>suppEdit?saveMeta({supps:suppList.filter(x=>x!==s2)}):toggleSupp(s2)} style=${suppEdit?{borderColor:'var(--red)'}:{}}>
+            <span class="box">${d.supps[s2]?'✓':''}</span>
+            <span style="flex:1">${s2}</span>
+            <span class="del" onClick=${e=>{e.stopPropagation();saveMeta({supps:suppList.filter(x=>x!==s2)});}}>✕</span>
+          </button>`)}
+        ${suppList.length===0&&html`<div class="empty">EMPTY STACK — ADD BELOW OR ASK THE AI</div>`}
+        <div class="row mt10">
+          <input style="flex:2" placeholder="Add to stack" value=${suppAdd} onInput=${e=>setSuppAdd(e.target.value)} onKeyDown=${e=>{if(e.key==='Enter'&&suppAdd.trim()){saveMeta({supps:[...suppList,suppAdd.trim()]});setSuppAdd('');}}} />
+          <button class="btn" onClick=${()=>{if(suppAdd.trim()){saveMeta({supps:[...suppList,suppAdd.trim()]});setSuppAdd('');}}}>ADD</button>
+</div>
+        ${!P.peptides&&html`
+          <div class="ai mt10">
+            <div class="ptitle" style="margin-bottom:8px"><span>🔮 AI STACK IDEAS</span><b>${aiMeta?.key?'ONLINE':'KEY REQUIRED'}</b></div>
+            ${aiMeta?.key?html`
+              <input placeholder='Your goals… "better skin, energy, sleep"' value=${stackGoal} onInput=${e=>setStackGoal(e.target.value)} />
+              ${aiBusy&&html`<div class="scanline"></div>`}
+              ${!aiBusy&&html`<button class="btn wide mt8" onClick=${suggestStack}>SUGGEST A STACK</button>`}
+              ${stackIdeas&&html`
+                <div class="mt10">
+                  ${stackIdeas.map(s3=>html`
+                    <button class="supp" key=${s3} onClick=${()=>{if(!suppList.includes(s3))saveMeta({supps:[...suppList,s3]});flash('ADDED');}}>
+                      <span class="box" style="border-color:var(--cy);color:var(--cy)">+</span>
+                      <span style="flex:1">${s3}</span>
+                    </button>`)}
+                  <div class="dim" style="font-size:11.5px;margin-top:6px">General wellness ideas — worth a quick check with a doctor or pharmacist, especially alongside any medication.</div>
+</div>`}
+            `:html`<div class="dim" style="font-size:12.5px">Add the AI key in FUEL → AI MACRO SCAN first.</div>`}
+</div>`}
+</div>
+      <div class="panel">
+        <div class="ptitle">
+          <span> STACK LEDGER</span>
+          <b>
+            <button class="ghost" style="padding:0 8px;font-size:14px" onClick=${()=>{setSMonth(new Date(sMonth.getFullYear(),sMonth.getMonth()-1,1));setSSel(null);}}>◀</button>
+            ${sMonth.toLocaleDateString(undefined,{month:'long',year:'numeric'}).toUpperCase()}
+            <button class="ghost" style="padding:0 8px;font-size:14px" onClick=${()=>{setSMonth(new Date(sMonth.getFullYear(),sMonth.getMonth()+1,1));setSSel(null);}}>▶</button>
+</b>
+</div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px">
+          ${['S','M','T','W','T','F','S'].map((dl,i)=>html`<div class="dim" style="text-align:center;font-size:9px;letter-spacing:.1em" key=${'sh'+i}>${dl}</div>`)}
+          ${monthCells(sMonth).map((k,i)=>{
+            if(!k)return html`<div key=${'se'+i}></div>`;
+            const future=k>todayKey();
+            const dd2=dayDocFor(k);
+            const done=dd2?suppList.filter(s2=>(dd2.supps||{})[s2]).length:0;
+            const pct=suppList.length?done/suppList.length:0;
+            const shots=injLog.filter(x=>x.date===k).length;
+            const has=done>0||shots>0;
+            return html`
+              <button key=${k} disabled=${future} onClick=${()=>{setSSel(sSel===k?null:k);setSAdd(null);}}
+                style=${{aspectRatio:'1',borderRadius:'9px',cursor:future?'default':'pointer',fontFamily:'inherit',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:'1px',
+                  border:(k===todayKey()?'1.5px solid var(--cy)':sSel===k?'1.5px solid var(--txt)':'1px solid var(--edge)'),
+                  background:!has?'transparent':pct>=1?'var(--green)':pct>=0.5?'var(--amber)':'var(--dim2)',
+                  opacity:future?.25:has?1:.6,
+                  color:has&&pct>=0.5?'#052018':'var(--dim)'}}>
+                <span style="font-size:11px;font-weight:700">${+k.slice(8)}</span>
+                ${(shots>0||done>0)&&html`<span style="font-size:9px;font-weight:700">${done>0?done+'/'+suppList.length:''}${shots>0?' '.repeat(Math.min(shots,2)):''}</span>`}
+              </button>`;
+          })}
+</div>
+        <div class="dim" style="font-size:9px;letter-spacing:.06em;margin-top:6px">▮ FULL STACK · ▮ PARTIAL ·  SHOT LOGGED · TAP A DAY TO SEE OR FIX IT</div>
+        ${sSel&&(()=>{
+          const k=sSel;const live=k===todayKey();
+          const dd2=dayDocFor(k)||{supps:{}};
+          const shots=injLog.filter(x=>x.date===k);
+          return html`
+            <div style="border:1px dashed var(--edge2);border-radius:11px;padding:12px;margin-top:10px">
+              <div class="ptitle" style="margin-bottom:6px">
+                <span>${new Date(k+'T12:00:00').toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'}).toUpperCase()}${live?' · LIVE':''}</span>
+                <b>${suppList.filter(s2=>(dd2.supps||{})[s2]).length} / ${suppList.length}</b>
+</div>
+              ${suppList.map(s2=>html`
+                <button class="supp" key=${s2} onClick=${()=>live?toggleSupp(s2):toggleSuppOn(k,s2)}>
+                  <span class="box" style=${(dd2.supps||{})[s2]?{background:'var(--cy)',borderColor:'var(--cy)',color:'#032921'}:{}}>${(dd2.supps||{})[s2]?'✓':''}</span>
+                  <span style="flex:1;text-align:left">${s2}</span>
+                </button>`)}
+              ${suppList.length===0&&html`<div class="dim" style="font-size:12px">No supplements in the stack yet.</div>`}
+              ${P.peptides&&html`
+                <div style="border-top:1px dashed var(--edge2);margin-top:8px;padding-top:8px">
+                  <div class="lbl" style="margin-bottom:4px"> SHOTS THIS DAY</div>
+                  ${shots.length===0&&html`<div class="dim" style="font-size:12px">None logged.</div>`}
+                  ${shots.map((x,i)=>html`
+                    <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;padding:2px 0" key=${i}>
+                      <span class="dim">${(COMPOUNDS[compOf(x)]||{}).label||x.c} — ${x.site}${x.t&&x.t!=='backfill'?' · '+x.t:''}${x.t==='backfill'?' · added later':''}${x.fasted===false?' · not fasted':''}</span>
+                      <button class="ghost" style="color:var(--red);padding:0 5px" onClick=${()=>{
+                        if(confirm('Remove this shot from the record?'))saveMeta({injLog:injLog.filter(r2=>r2!==x)});
+                      }}>✕</button>
+</div>`)}
+                  ${sAdd===null?html`
+                    <button class="btn wide mt8" onClick=${()=>setSAdd({c:'cjc',site:null,fasted:true})}>＋ LOG A SHOT TO THIS DAY</button>
+                  `:html`
+                    <div style="border-top:1px dashed var(--edge2);margin-top:8px;padding-top:8px">
+                      <div class="row">
+                        ${['cjc','ghk'].map(cp=>html`
+                          <button class=${'site'+(sAdd.c===cp?' on':'')} key=${cp} onClick=${()=>setSAdd({...sAdd,c:cp})}>${COMPOUNDS[cp].label.split('')[0]}</button>`)}
+</div>
+                      <div class="lbl mt8">SITE</div>
+                      <div class="sitegrid">
+                        ${SITES.map(([id,label])=>html`
+                          <button class=${'site'+(sAdd.site===id?' on':'')} key=${id} onClick=${()=>setSAdd({...sAdd,site:id})}>${label}</button>`)}
+</div>
+                      ${COMPOUNDS[sAdd.c].fasted&&html`
+                        <label style="display:flex;gap:8px;align-items:center;margin:6px 0;font-size:13px;color:var(--dim);cursor:pointer">
+                          <input type="checkbox" style="width:auto" checked=${sAdd.fasted} onChange=${e=>setSAdd({...sAdd,fasted:e.target.checked})} />
+                          It was fasted
+                        </label>`}
+                      <div class="row mt8">
+                        <button class="btn solid" onClick=${()=>{
+                          if(!sAdd.site){setErr('Pick the site.');return;}
+                          if(injLog.some(r2=>r2.date===k&&compOf(r2)===sAdd.c)){setErr('That compound is already logged on this day.');return;}
+                          const rec={date:k,site:sAdd.site,c:sAdd.c,t:'backfill'};
+                          if(COMPOUNDS[sAdd.c].fasted)rec.fasted=!!sAdd.fasted;
+                          saveMeta({injLog:[rec,...injLog].slice(0,800)});
+                          setSAdd(null);flash('SHOT LOGGED TO '+k.slice(5)+'');
+                        }}>ADD IT</button>
+                        <button class="ghost" onClick=${()=>setSAdd(null)}>CANCEL</button>
+</div>
+</div>`}
+</div>`}
+</div>`;
+        })()}
+</div>
+    <//>`;
+
+  const spark=()=>{
+    if(!wTrend||wTrend.pts.length<2)return html`<div class="empty">LOG 2+ WEIGH-INS FOR TREND</div>`;
+    const pts=wTrend.pts;
+    const ws=pts.map(p2=>p2.w);
+    const min=Math.min(...ws)-1,max=Math.max(...ws)+1;
+    const X=(i)=>20+(i/(pts.length-1))*300;
+    const Y=(w)=>10+(1-(w-min)/(max-min))*85;
+    const path=pts.map((p2,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(p2.w).toFixed(1)).join('');
+    return html`
+      <svg class="spark" viewBox="0 0 340 120" preserveAspectRatio="none">
+        <path d=${path} fill="none" stroke="#FF9A6B" stroke-width="2.5" style="filter:drop-shadow(0 0 5px rgba(255,122,80,.8))"/>
+        ${pts.map((p2,i)=>html`<circle key=${i} cx=${X(i)} cy=${Y(p2.w)} r="3.5" fill="#FFC65C"/>`)}
+        <text x="20" y="115" class="axis">${pts[0].date.slice(5)}</text>
+        <text x="300" y="115" class="axis">${pts[pts.length-1].date.slice(5)}</text>
+        <text x="4" y="14" class="axis">${toDisp(max).toFixed(0)}</text>
+        <text x="4" y="98" class="axis">${toDisp(min).toFixed(0)}</text>
+      </svg>`;
+  };
+
+  const nextDays=[...Array(7)].map((_,i)=>{const dd=new Date();dd.setDate(dd.getDate()+i);return {k:dkey(dd),l:i===0?'TODAY':i===1?'TMRW':dd.toLocaleDateString(undefined,{weekday:'short'}).toUpperCase()};});
+  const upcoming=[...plan].sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:(a.time<b.time?-1:1));
+  const trainTab=html`
+    <${Fragment}>
+      <div class="subtabsX" style="display:flex;gap:6px;margin-bottom:13px">
+        ${[['log','LOG A WORKOUT'],['plan','MY SCHEDULE']].map(([id,l])=>html`
+          <button class="btn" style=${trainSub===id?{flex:1}:{flex:1,opacity:.45,borderColor:'var(--edge2)',boxShadow:'none'}} key=${id} onClick=${()=>setTrainSub(id)}>${l}</button>`)}
+</div>
+      ${trainSub==='log'?html`
+        <div class="panel">
+          <div class="ptitle"><span>LOG TODAY'S TRAINING</span><b>${weekTrainCount} THIS WEEK</b></div>
+          <div class="lbl">WHERE / WHAT</div>
+          <div class="sitegrid" style=${{gridTemplateColumns:WTYPES.length===4?'1fr 1fr':'1fr 1fr 1fr'}}>
+            ${WTYPES.map(([id,l])=>html`
+              <button class=${'site'+(wk.type===id?' on':'')} key=${id} onClick=${()=>setWk({...wk,type:id})}>${l}</button>`)}
+</div>
+          ${wk.type==='class'&&favClasses.length>0&&html`
+            <div class="lbl mt8">YOUR CLASSES</div>
+            <div class="row" style="flex-wrap:wrap;gap:7px">
+              ${favClasses.map(c3=>html`
+                <button class="btn" style=${{flex:'0 0 auto',padding:'8px 14px',fontSize:'12.5px',...(wk.name===c3?{}:{opacity:.55,boxShadow:'none',borderColor:'var(--edge2)'})}} key=${c3} onClick=${()=>setWk({...wk,name:c3})}>${c3}</button>`)}
+</div>`}
+          ${wk.type==='class'?html`
+            <div class="lbl mt8">CLASS NAME</div>
+            <input placeholder="Reformer pilates, spin, hot yoga…" value=${wk.name||''} onInput=${e=>setWk({...wk,name:e.target.value})} />
+            <label style="display:flex;gap:8px;align-items:center;margin-top:8px;font-size:13px;color:var(--dim);cursor:pointer">
+              <input type="checkbox" style="width:auto" checked=${!!wk.fav} onChange=${e=>setWk({...wk,fav:e.target.checked})} />
+              Save to my classes
+            </label>
+          `:html`
+            <div class="lbl mt8">WHAT DID YOU DO? (OPTIONAL)</div>
+            <input placeholder=${wk.type==='stage'?'Rehearsal, show, studio session…':'Upper body, legs, full body circuit…'} value=${wk.name||''} onInput=${e=>setWk({...wk,name:e.target.value})} />
+          `}
+          <div class="lbl mt8">MINUTES</div>
+          <div class="row" style="align-items:center">
+            ${['30','45','60','90'].map(m3=>html`
+              <button class="btn" style=${wk.min===m3?{}:{opacity:.45,boxShadow:'none',borderColor:'var(--edge2)'}} key=${m3} onClick=${()=>setWk({...wk,min:m3})}>${m3}</button>`)}
+            <input inputmode="numeric" placeholder="custom" style="width:76px;text-align:center"
+              value=${['30','45','60','90'].includes(wk.min)?'':(wk.min||'')}
+              onInput=${e=>setWk({...wk,min:e.target.value.replace(/[^0-9]/g,'')})} />
+</div>
+          <button class="btn solid wide mt10" onClick=${logWorkout}>LOG IT</button>
+</div>
+        <div class="panel">
+          <div class="ptitle"><span>RECENT SESSIONS</span><b>${trainedToday?'TRAINED TODAY ✓':''}</b></div>
+          ${workLog.length===0&&html`<div class="empty">NO SESSIONS YET — FIRST ONE'S THE HARDEST</div>`}
+          ${workLog.slice(0,10).map(w=>html`
+            <div class="meal" key=${w.id}>
+              <span class="t">${w.date===todayKey()?w.t||'today':w.date.slice(5)}</span>
+              <span style="flex:1;padding:0 8px">${typeLabel(w.type)} ${w.name||(w.type==='gym'?'Gym session':w.type==='home'?'Backyard session':w.type==='stage'?'Stage session':'Class')}</span>
+              <span class="m">${w.min?w.min+'m':''}</span>
+              <button class="x" onClick=${()=>delWorkout(w.id)}>✕</button>
+</div>`)}
+</div>
+      `:html`
+        <div class="panel">
+          <div class="ptitle"><span>PLAN A SESSION</span><b></b></div>
+          <div class="lbl">DAY</div>
+          <div class="row" style="flex-wrap:wrap;gap:7px">
+            ${nextDays.map(dd=>html`
+              <button class="btn" style=${{flex:'0 0 auto',padding:'8px 13px',fontSize:'12px',...(pl.date===dd.k?{}:{opacity:.45,boxShadow:'none',borderColor:'var(--edge2)'})}} key=${dd.k} onClick=${()=>setPl({...pl,date:dd.k})}>${dd.l}</button>`)}
+</div>
+          <div class="row mt8">
+            <div><div class="lbl">TIME (OPTIONAL)</div><input placeholder="9:00 AM" value=${pl.time||''} onInput=${e=>setPl({...pl,time:e.target.value})} /></div>
+            <div><div class="lbl">TYPE</div>
+              <select value=${pl.type} onChange=${e=>setPl({...pl,type:e.target.value})}>
+                ${WTYPES.map(([id,l])=>html`<option value=${id}>${l}</option>`)}
+              </select></div>
+</div>
+          ${favClasses.length>0&&pl.type==='class'&&html`
+            <div class="row mt8" style="flex-wrap:wrap;gap:7px">
+              ${favClasses.map(c3=>html`
+                <button class="btn" style=${{flex:'0 0 auto',padding:'8px 14px',fontSize:'12.5px',...(pl.name===c3?{}:{opacity:.55,boxShadow:'none',borderColor:'var(--edge2)'})}} key=${c3} onClick=${()=>setPl({...pl,name:c3})}>${c3}</button>`)}
+</div>`}
+          <div class="lbl mt8">${pl.type==='class'?'CLASS NAME':'NOTE (OPTIONAL)'}</div>
+          <input placeholder=${pl.type==='class'?'Reformer pilates…':'Leg day…'} value=${pl.name||''} onInput=${e=>setPl({...pl,name:e.target.value})} />
+          <button class="btn solid wide mt10" onClick=${addPlan}>ADD TO SCHEDULE</button>
+</div>
+        <div class="panel">
+          <div class="ptitle"><span>UPCOMING</span><b>${upcoming.length} PLANNED</b></div>
+          ${upcoming.length===0&&html`<div class="empty">NOTHING SCHEDULED — PLAN THE WEEK ABOVE</div>`}
+          ${upcoming.map(p2=>html`
+            <div class="meal" key=${p2.id} style=${p2.date<todayKey()?{opacity:.5}:{}}>
+              <span class="t" style=${p2.date===todayKey()?{color:'var(--cy)'}:{}}>${p2.date===todayKey()?'TODAY':p2.date.slice(5)}${p2.time?' '+p2.time:''}</span>
+              <span style="flex:1;padding:0 8px">${typeLabel(p2.type)} ${p2.name||(p2.type==='gym'?'Gym':p2.type==='stage'?'Stage':'Backyard')}</span>
+              <button class="x" style="color:var(--cy);font-weight:700" onClick=${()=>donePlan(p2)}>✓ done</button>
+              <button class="x" onClick=${()=>delPlan(p2.id)}>✕</button>
+</div>`)}
+</div>
+      `}
+      <div class="panel">
+        <div class="ptitle">
+          <span> TRAIN LEDGER</span>
+          <b>
+            <button class="ghost" style="padding:0 8px;font-size:14px" onClick=${()=>{setTMonth(new Date(tMonth.getFullYear(),tMonth.getMonth()-1,1));setTSel(null);setTAdd(null);}}>◀</button>
+            ${tMonth.toLocaleDateString(undefined,{month:'long',year:'numeric'}).toUpperCase()}
+            <button class="ghost" style="padding:0 8px;font-size:14px" onClick=${()=>{setTMonth(new Date(tMonth.getFullYear(),tMonth.getMonth()+1,1));setTSel(null);setTAdd(null);}}>▶</button>
+</b>
+</div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px">
+          ${['S','M','T','W','T','F','S'].map((dl,i)=>html`<div class="dim" style="text-align:center;font-size:9px;letter-spacing:.1em" key=${'th'+i}>${dl}</div>`)}
+          ${monthCells(tMonth).map((k,i)=>{
+            if(!k)return html`<div key=${'te'+i}></div>`;
+            const future=k>todayKey();
+            const entries=workLog.filter(w=>w.date===k);
+            const has=entries.length>0;
+            return html`
+              <button key=${k} disabled=${future} onClick=${()=>{setTSel(tSel===k?null:k);setTAdd(null);}}
+                style=${{aspectRatio:'1',borderRadius:'9px',cursor:future?'default':'pointer',fontFamily:'inherit',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:'1px',
+                  border:(k===todayKey()?'1.5px solid var(--cy)':tSel===k?'1.5px solid var(--txt)':'1px solid var(--edge)'),
+                  background:has?'var(--green)':'transparent',
+                  opacity:future?.25:has?1:.6,
+                  color:has?'#052018':'var(--dim)'}}>
+                <span style="font-size:11px;font-weight:700">${+k.slice(8)}</span>
+                ${has&&html`<span style="font-size:9.5px">${entries.slice(0,2).map(w=>typeLabel(w.type)).join('')}</span>`}
+              </button>`;
+          })}
+</div>
+        <div class="dim" style="font-size:9px;letter-spacing:.06em;margin-top:6px">▮ TRAINED · TAP A DAY TO SEE, ADD, OR FIX IT</div>
+        ${tSel&&(()=>{
+          const k=tSel;const entries=workLog.filter(w=>w.date===k);
+          return html`
+            <div style="border:1px dashed var(--edge2);border-radius:11px;padding:12px;margin-top:10px">
+              <div class="ptitle" style="margin-bottom:6px">
+                <span>${new Date(k+'T12:00:00').toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'}).toUpperCase()}</span>
+                <b>${entries.length||'REST'}</b>
+</div>
+              ${entries.map(w=>html`
+                <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:3px 0" key=${w.id}>
+                  <span>${typeLabel(w.type)} ${w.name||w.type.toUpperCase()}${w.min?html`<span class="dim" style="font-size:11px"> · ${w.min} min</span>`:''}</span>
+                  <button class="ghost" style="color:var(--red);padding:0 4px" onClick=${()=>{if(confirm('Remove this session?'))delWorkout(w.id);}}>✕</button>
+</div>`)}
+              ${entries.length===0&&html`<div class="dim" style="font-size:12px">Nothing logged — rest day, or add what you did below.</div>`}
+              ${tAdd===null?html`
+                <button class="btn wide mt8" onClick=${()=>setTAdd({type:'gym'})}>＋ LOG A SESSION TO THIS DAY</button>
+              `:html`
+                <div style="border-top:1px dashed var(--edge2);margin-top:8px;padding-top:8px">
+                  <div class="row">
+                    ${WTYPES.map(([tv,tl])=>html`
+                      <button class=${'site'+(tAdd.type===tv?' on':'')} key=${tv} onClick=${()=>setTAdd({...tAdd,type:tv})}>${tl}</button>`)}
+</div>
+                  ${tAdd.type==='class'&&html`<input class="mt8" placeholder="Which class?" value=${tAdd.name||''} onInput=${e=>setTAdd({...tAdd,name:e.target.value})} />`}
+                  <div class="row mt8">
+                    <input inputmode="numeric" placeholder="minutes (optional)" value=${tAdd.min||''} onInput=${e=>setTAdd({...tAdd,min:e.target.value})} />
+</div>
+                  <div class="row mt8">
+                    <button class="btn solid" onClick=${()=>{
+                      if(tAdd.type==='class'&&!(tAdd.name||'').trim()){setErr('Which class?');return;}
+                      saveMeta({workLog:[{id:Date.now().toString(36),date:k,t:'backfill',type:tAdd.type,name:(tAdd.name||'').trim()||null,min:tAdd.min?parseInt(tAdd.min):null},...workLog].slice(0,600)});
+                      setTAdd(null);flash('SESSION LOGGED TO '+k.slice(5)+' ✓');
+                    }}>ADD IT</button>
+                    <button class="ghost" onClick=${()=>setTAdd(null)}>CANCEL</button>
+</div>
+</div>`}
+</div>`;
+        })()}
+</div>
+    <//>`;
+
+  const voiceTab=html`
+    <${Fragment}>
+      ${vt&&html`
+        <div class="panel" style="text-align:center;border-color:var(--cy)">
+          <div class="ptitle" style="justify-content:center"><span>${vt.label}</span></div>
+          <div style="font-family:var(--mono);font-size:54px;color:var(--cy);letter-spacing:.05em;text-shadow:0 0 20px rgba(95,232,201,.4)">${fmtT(vt.left)}</div>
+          <div style="height:6px;border-radius:4px;background:var(--edge);overflow:hidden;margin:12px 0">
+            <div style=${{height:'100%',width:Math.round(100*(1-vt.left/vt.total))+'%',background:'linear-gradient(90deg,var(--cy),var(--amber))',transition:'width 1s linear'}}></div>
+</div>
+          <button class="ghost" style="color:var(--red)" onClick=${()=>setVt(null)}>stop early</button>
+</div>`}
+      ${stageToday&&html`
+        <div class="panel" style="border-color:var(--amber);text-align:center;padding:12px">
+          <b style="color:var(--amber);letter-spacing:.14em;font-size:13px"> STAGE DAY — FULL RITUAL · NEBULISER ×${nebTarget}</b>
+</div>`}
+      <div class="panel">
+        <div class="ptitle"><span> DAILY RITUAL</span><b>${vDone} / 6${vComplete?' ✓':''} <button class="ghost" style="padding:0 6px" onClick=${()=>setVtEdit(!vtEdit)}>${vtEdit?'DONE':'⏱ EDIT'}</button></b></div>
+        ${VOICE_CHECKS.map(([k,e2,l])=>html`
+          <div class="supp" style="cursor:default" key=${k}>
+            <button class="box" style=${{...(vc[k]?{background:'var(--cy)',borderColor:'var(--cy)',color:'#032921'}:{}),cursor:'pointer'}} onClick=${()=>setV({[k]:!vc[k]})}>${vc[k]?'✓':''}</button>
+            <span style="font-size:15px;margin:0 8px">${e2}</span>
+            <span style="flex:1;text-align:left">${l}</span>
+            ${vtEdit?html`
+              <span style="display:flex;align-items:center;gap:4px;flex:0 0 auto">
+                <input inputmode="numeric" value=${vTimes[k]} onChange=${e=>setVTime(k,e.target.value)} style="width:44px;text-align:center;padding:6px 2px"/>
+                <span class="dim" style="font-size:10px">min</span>
+</span>
+            `:!vc[k]&&!vt&&html`<button class="btn" style="flex:0 0 auto;padding:6px 11px;font-size:11px" onClick=${()=>setVt({key:k,label:e2+' '+l,endAt:Date.now()+vTimes[k]*60000,left:vTimes[k]*60,total:vTimes[k]*60,kind:'check'})}>▶ ${vTimes[k]} min</button>`}
+</div>`)}
+        <div class="supp" style="cursor:default">
+          <span style="font-size:15px;margin-right:8px"></span>
+          <span style="flex:1;text-align:left">NEBULISER <span class="dim" style="font-size:11px">— ${nebTarget}× TODAY</span></span>
+          <button class="btn" style="flex:0 0 auto;padding:7px 13px" onClick=${()=>setV({neb:Math.max(0,(vc.neb||0)-1)})}>−</button>
+          <b style=${{margin:'0 10px',color:(vc.neb||0)>=nebTarget?'var(--green)':(vc.neb||0)>=1?'var(--amber)':'var(--dim)'}}>${vc.neb||0}/${nebTarget}</b>
+          <button class="btn" style="flex:0 0 auto;padding:7px 13px" onClick=${()=>setV({neb:(vc.neb||0)+1})}>+</button>
+</div>
+        <div class="supp" style="cursor:default">
+          <span style="font-size:15px;margin-right:8px"></span>
+          <span style="flex:1;text-align:left">STEAMING <span class="dim" style="font-size:11px">— 1-2× DAILY</span></span>
+          ${vtEdit?html`
+            <span style="display:flex;align-items:center;gap:4px;flex:0 0 auto;margin-right:8px">
+              <input inputmode="numeric" value=${vTimes.steam} onChange=${e=>setVTime('steam',e.target.value)} style="width:44px;text-align:center;padding:6px 2px"/>
+              <span class="dim" style="font-size:10px">min</span>
+</span>
+          `:!vt&&html`<button class="btn" style="flex:0 0 auto;padding:6px 11px;font-size:11px;margin-right:8px" onClick=${()=>setVt({key:'steam',label:' STEAM SESSION',endAt:Date.now()+vTimes.steam*60000,left:vTimes.steam*60,total:vTimes.steam*60,kind:'steam'})}>▶ ${vTimes.steam} min</button>`}
+          <b style=${{margin:'0 10px',color:(vc.steam||0)>=2?'var(--green)':(vc.steam||0)>=1?'var(--amber)':'var(--dim)'}}>${vc.steam||0}/2</b>
+          <button class="btn" style="flex:0 0 auto;padding:7px 13px" onClick=${()=>setV({steam:(vc.steam||0)+1})}>+</button>
+</div>
+        ${vComplete&&html`<div style="text-align:center;color:var(--cy);font-weight:700;font-size:13px;letter-spacing:.1em;margin-top:10px">RITUAL COMPLETE — THE SIREN IS READY</div>`}
+</div>
+      <div class="panel">
+        <div class="ptitle"><span>HOW\u2019S THE VOICE TODAY?</span><b>${vc.feel?FEELS.find(f2=>f2[0]===vc.feel)?.[2]:''}</b></div>
+        <div class="row">
+          ${FEELS.map(([n2,e2,l])=>html`
+            <button class=${'site'+(vc.feel===n2?' on':'')} style="padding:10px 4px" key=${n2} onClick=${()=>{setV({feel:vc.feel===n2?null:n2});if(meta!==null){const fl=(meta.feelLog||[]).filter(x=>x.date!==todayKey());saveMeta({feelLog:[...fl,{date:todayKey(),f:n2}].slice(-180)});}}}>
+              <span style="font-size:19px">${e2}</span><br/><span style="font-size:9.5px">${l}</span>
+            </button>`)}
+</div>
+        ${(meta?.feelLog||[]).length>1&&html`
+          <div class="lbl mt10">LAST ${Math.min((meta.feelLog||[]).length,14)} CHECK-INS</div>
+          <div style="display:flex;gap:4px;align-items:flex-end;height:34px">
+            ${(meta.feelLog||[]).slice(-14).map(x=>html`
+              <div key=${x.date} title=${x.date} style=${{flex:1,borderRadius:'3px',height:(x.f*20)+'%',background:x.f>=4?'var(--green)':x.f>=3?'var(--cy)':'var(--amber)',minHeight:'4px'}}></div>`)}
+</div>`}
+</div>
+      <div class="panel">
+        <div class="ptitle"><span>SIREN SCORE</span><b>${sirenRank[0]} ${sirenRank[1]}</b></div>
+        <div style="display:flex;align-items:baseline;gap:10px">
+          <span style="font-family:var(--mono);font-size:40px;color:var(--cy)">${sirenScore}</span>
+          <span class="dim" style="font-size:12px">/ 111 today · ${vStreak}-DAY STREAK</span>
+</div>
+        <div style="height:7px;border-radius:4px;background:var(--edge);overflow:hidden;margin-top:8px">
+          <div style=${{height:'100%',width:Math.min(100,Math.round(sirenScore/111*100))+'%',background:'linear-gradient(90deg,var(--cy),#FF8FBF)'}}></div>
+</div>
+        <div class="weekstrip">
+          ${[...Array(7)].map((_,i)=>{
+            const dt=new Date();dt.setDate(dt.getDate()-(6-i));
+            const k=dkey(dt);
+            const hit=!!vLog[k];
+            return html`<div class=${'wd'+(hit?' hit':'')+(k===todayKey()?' today':'')} key=${k}>
+              ${['S','M','T','W','T','F','S'][dt.getDay()]}<br/>${hit?'●':'·'}
+</div>`;
+          })}
+</div>
+</div>
+      <div class="panel">
+        <div class="ptitle">
+          <span> THE RECORD</span>
+          <b>
+            <button class="ghost" style="padding:0 8px;font-size:14px" onClick=${()=>{setHistMonth(new Date(histMonth.getFullYear(),histMonth.getMonth()-1,1));setHistSel(null);}}>◀</button>
+            ${histMonth.toLocaleDateString(undefined,{month:'long',year:'numeric'}).toUpperCase()}
+            <button class="ghost" style="padding:0 8px;font-size:14px" onClick=${()=>{setHistMonth(new Date(histMonth.getFullYear(),histMonth.getMonth()+1,1));setHistSel(null);}}>▶</button>
+</b>
+</div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:4px">
+          ${['S','M','T','W','T','F','S'].map((dl,i)=>html`<div class="dim" style="text-align:center;font-size:9px;letter-spacing:.1em" key=${i}>${dl}</div>`)}
+          ${histCells.map((k,i)=>{
+            if(!k)return html`<div key=${'e'+i}></div>`;
+            const v=vhist[k];
+            const t2=v?scTier(v.sc):null;
+            return html`
+              <button key=${k} onClick=${()=>setHistSel(histSel===k?null:k)}
+                style=${{aspectRatio:'1',borderRadius:'9px',cursor:'pointer',fontFamily:'var(--mono)',fontSize:'11px',position:'relative',
+                  border:(k===todayKey()?'1.5px solid var(--cy)':histSel===k?'1.5px solid var(--txt)':'1px solid var(--edge)'),
+                  background:v?t2.bg:'transparent',opacity:v?t2.op:.45,
+                  color:v&&v.sc>=30?'#032921':'var(--dim)'}}>
+                ${+k.slice(8)}
+                ${v&&v.ok?html`<span style="position:absolute;top:1px;right:2px;font-size:9px">★</span>`:''}
+              </button>`;
+          })}
+</div>
+        ${histStats?html`
+          <div class="dim" style="font-size:11.5px;line-height:1.7;margin-top:8px">
+            ${histStats.comp} complete day${histStats.comp===1?'':'s'} of ${histStats.n} tracked · avg score ${histStats.avg} · best ${histStats.bestSc} on ${histStats.bestK.slice(5)}
+            ${histStats.worstLabel?html`<br/>most skipped: ${histStats.worstLabel.toLowerCase()} (${histStats.worstN}×) — the siren\u2019s weak spot `:html`<br/>nothing consistently skipped — flawless month energy`}
+</div>`:html`<div class="empty" style="padding:10px 0">NO RITUAL DAYS THIS MONTH YET</div>`}
+        ${histSel&&vhist[histSel]&&(()=>{
+          const v=vhist[histSel];
+          return html`
+            <div style="border:1px dashed var(--edge2);border-radius:11px;padding:12px;margin-top:10px">
+              <div class="ptitle" style="margin-bottom:8px"><span>${new Date(histSel+'T12:00:00').toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}).toUpperCase()}</span>
+                <b>${v.sc} PTS${v.ok?' · COMPLETE ★':''}</b></div>
+              ${VOICE_CHECKS.map(([k2,e2,l],i)=>html`
+                <div style="display:flex;gap:8px;font-size:12.5px;padding:3px 0" key=${k2}>
+                  <span style=${{color:(v.b&(1<<i))?'var(--green)':'var(--red)'}}>${(v.b&(1<<i))?'✓':'✗'}</span>
+                  <span>${e2} ${l}</span>
+</div>`)}
+              <div style="display:flex;gap:8px;font-size:12.5px;padding:3px 0">
+                <span style=${{color:v.n>=2?'var(--green)':v.n>=1?'var(--amber)':'var(--red)'}}>${v.n>=2?'✓':v.n>=1?'~':'✗'}</span>
+                <span> NEBULISER ×${v.n}</span>
+</div>
+              <div style="display:flex;gap:8px;font-size:12.5px;padding:3px 0">
+                <span style=${{color:v.s>=1?'var(--green)':'var(--red)'}}>${v.s>=1?'✓':'✗'}</span>
+                <span> STEAMING ×${v.s}</span>
+</div>
+              ${v.f>0&&html`<div style="font-size:12.5px;padding:3px 0">VOICE FELT: ${FEELS.find(f2=>f2[0]===v.f)?.[1]} ${FEELS.find(f2=>f2[0]===v.f)?.[2]}</div>`}
+</div>`;
+        })()}
+</div>
+      <div class="panel" style="background:linear-gradient(150deg,var(--panel),rgba(255,143,191,.05))">
+        <div class="ptitle"><span>💡 TODAY\u2019S VOICE NOTE</span></div>
+        <div style="font-size:14px;line-height:1.6;font-style:italic">${vTip}</div>
+</div>
+    <//>`;
+
+  const bodyTab=html`
+    <${Fragment}>
+      <div class="panel">
+        <div class="ptitle"><span>BODYWEIGHT</span>
+          <b>${lastW?toDisp(lastW.w)+' '+uLabel:'—'}
+            <button class="ghost" style="padding:0 6px" onClick=${()=>saveMeta({unit:unit==='lb'?'kg':'lb'})}>${unit==='lb'?'→ KG':'→ LB'}</button>
+</b></div>
+        <div class="row">
+          <input inputmode="decimal" placeholder=${`Today's weight (${unit})`} value=${wIn} onInput=${e=>setWIn(e.target.value)} />
+          <button class="btn solid" onClick=${logWeight}>LOG</button>
+</div>
+        <div class="mt12">${spark()}</div>
+        ${wTrend&&html`
+          <div class="statgrid mt10">
+            <div class=${'stat '+(wTrend.perWeek>0?'good':'warn')}>
+              <div class="k">RATE</div>
+              <div class="v">${wTrend.perWeek>=0?'+':''}${toDisp(wTrend.perWeek).toFixed(2)}<small> ${unit}/wk</small></div>
+</div>
+            <div class="stat">
+              <div class="k">${daysToGoal!==null?'T-MINUS '+P.goalLabel:'GOAL DATE'}</div>
+              <div class="v">${daysToGoal!==null?daysToGoal:'—'}<small>${daysToGoal!==null?' days':''}</small></div>
+</div>
+</div>`}
+</div>
+      <div class="panel">
+        <div class="ptitle"><span>🩸 BLOODWORK AI</span><b>${aiMeta?.key?(labBusy?'ANALYZING':'ONLINE'):'KEY REQUIRED'}</b></div>
+        ${labBusy?html`
+          <div class="dim" style="font-family:var(--mono);font-size:12px">READING THE REPORT — 15-30 SECONDS…</div>
+          <div class="scanline"></div>
+        `:html`
+          <label class="btn wide" style="display:block;text-align:center">
+            UPLOAD BLOODWORK PDF
+            <input type="file" accept="application/pdf" style="display:none" onChange=${e=>{const f2=e.target.files[0];if(f2)analyzeLab(f2);e.target.value='';}} />
+          </label>
+        `}
+        ${labReports.length>0&&html`
+          <div class="lbl mt10">SAVED RECAPS</div>
+          ${labReports.map(L=>html`
+            <div key=${L.id}>
+              <div class="meal">
+                <span class="t">${L.date.slice(5)}</span>
+                <span style="flex:1;padding:0 8px">${L.name||'Lab report'}</span>
+                <button class="x" style="color:var(--cy);font-weight:700" onClick=${()=>setLabView(labView===L.id?null:L.id)}>${labView===L.id?'hide':'view'}</button>
+                <button class="x" onClick=${()=>delLab(L.id)}>✕</button>
+</div>
+              ${labView===L.id&&html`
+                <div class="aires" style="white-space:pre-wrap;font-size:12.5px;line-height:1.65;max-height:420px;overflow-y:auto">${L.recap}</div>
+                <div class="dim" style="font-size:11px;margin:6px 0 10px">Educational recap of the report — bring it to a doctor for the real conversation.</div>
+              `}
+</div>`)}
+        `}
+</div>
+      <div class="panel">
+        <div class="ptitle"><span>TARGETS</span><b><button class="ghost" style="color:var(--cy)" onClick=${()=>setEditT(editT?null:{...T})}>${editT?'CLOSE':'EDIT'}</button></b></div>
+        ${editT?html`
+          <div class="row"><div><div class="lbl">KCAL</div><input inputmode="numeric" value=${editT.kcal} onInput=${e=>setEditT({...editT,kcal:e.target.value})}/></div>
+            <div><div class="lbl">PROTEIN</div><input inputmode="numeric" value=${editT.protein} onInput=${e=>setEditT({...editT,protein:e.target.value})}/></div></div>
+          <div class="row"><div><div class="lbl">WATER GOAL (GLASSES)</div><input inputmode="numeric" value=${editT.waterGoal??waterGoal} onInput=${e=>setEditT({...editT,waterGoal:e.target.value})}/></div><div></div></div>
+          <div class="row mt8"><div><div class="lbl">CARBS</div><input inputmode="numeric" value=${editT.carbs} onInput=${e=>setEditT({...editT,carbs:e.target.value})}/></div>
+            <div><div class="lbl">FAT</div><input inputmode="numeric" value=${editT.fat} onInput=${e=>setEditT({...editT,fat:e.target.value})}/></div></div>
+          <div class="lbl mt8">LAST-MEAL CUTOFF (HH:MM)</div>
+          <input value=${editT.cutoff||'21:00'} onInput=${e=>setEditT({...editT,cutoff:e.target.value})} placeholder="21:00"/>
+          <div class="lbl mt8">MISSION DATE</div>
+          <input value=${editT.goalDate} onInput=${e=>setEditT({...editT,goalDate:e.target.value})} placeholder="YYYY-MM-DD (blank = none)"/>
+          <button class="btn solid wide mt10" onClick=${saveTargets}>SAVE TARGETS</button>
+        `:html`
+          <div class="dim" style="font-family:var(--mono);font-size:12.5px">
+            ${T.kcal} KCAL · ${T.protein}P / ${T.carbs}C / ${T.fat}F · CUTOFF ${T.cutoff||'21:00'}${T.goalDate?' · MISSION '+T.goalDate:''}
+</div>`}
+</div>
+      <div class="panel">
+        <div class="ptitle"><span> YOUR DATA</span><b>${expBusy?'EXPORTING…':''}</b></div>
+        <div class="dim" style="font-size:12px;margin-bottom:10px">Everything — profile, logs, and the last 90 days — as a JSON file you own.</div>
+        <button class="btn wide" onClick=${exportData}>EXPORT MY DATA</button>
+</div>
+    <//>`;
+
+  return html`
+    <${Fragment}>
+      <div class="hdr">
+        <div class="hrow">
+          <div class="logo">
+            <div class="core"></div>
+            <div><h1>${P.app}</h1><div class="sub">${P.sub}</div></div>
+</div>
+          <button class="lockb" onClick=${()=>{setAuthed(false);setPinBuf('');setPinMode('enter');}}>LOCK</button>
+</div>
+        <div class="datebar">
+          <span>${now.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'}).toUpperCase()} · ${nowHM()}</span>
+          <span class="tminus">${daysToGoal!==null?`T-${daysToGoal} ${P.goalLabel}`:''}</span>
+</div>
+        <div class="tabs">
+          ${(P.peptides?[['cmd','TODAY'],['fuel','FUEL'],['train','TRAIN'],['stack','STACK'],['body','BODY']]:[['cmd','TODAY'],['fuel','FUEL'],['train','TRAIN'],['voice','VOICE'],['stack','STACK'],['body','BODY']]).map(([id,l])=>html`
+            <button class=${tab===id?'on':''} key=${id} onClick=${()=>setTab(id)}><${NavIcon} id=${id}/>${l}</button>`)}
+</div>
+</div>
+      <div class="wrap">
+        ${err&&html`<div class="banner err" onClick=${()=>setErr('')}>${err}</div>`}
+        ${!dayLoaded&&!stuck&&html`<div class="panel" style="text-align:center"><b style="font-size:13px">Syncing today from the cloud…</b></div>`}
+        ${!dayLoaded&&stuck&&html`<div class="panel" style="text-align:center;border-color:var(--amber)"><b style="font-size:13px;color:var(--amber)">Connection is struggling.</b><br/><button class="btn" style="margin-top:8px" onClick=${()=>location.reload()}>↻ Reload</button></div>`}
+        ${tab==='cmd'?cmdTab:tab==='fuel'?fuelTab:tab==='train'?trainTab:tab==='voice'?voiceTab:tab==='stack'?stackTab:bodyTab}
+</div>
+      ${toast&&html`<div class="toast">${toast}</div>`}
+    <//>`;
+}
+
+render(html`<${App} />`, document.getElementById('app'));
+</script>
+</body>
+</html>
