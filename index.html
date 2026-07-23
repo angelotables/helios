@@ -1409,28 +1409,24 @@ function App(){
     if(st.rise&&st.set){srMin=st.rise.getHours()*60+st.rise.getMinutes();ssMin=st.set.getHours()*60+st.set.getMinutes();}
     const nowMin=now.getHours()*60+now.getMinutes();
     const isDay=polar==='day'||(polar!=='night'&&nowMin>=srMin&&nowMin<ssMin);
-    const tOf=(m)=>Math.max(0,Math.min(1,m/1440));
-    const nowT=tOf(nowMin),srT=tOf(srMin),ssT=tOf(ssMin);
-    const [sx,sy]=bez(nowT),[rx,ry]=bez(srT),[stx,sty]=bez(ssT);
+    const nowT=Math.max(0,Math.min(1,nowMin/1440));
+    const [sx,sy]=bez(nowT);
     const p2=(x)=>String(x).padStart(2,'0'), fmt=(m)=>p2(Math.floor(m/60))+':'+p2(m%60);
+    const sunLine=polar==='day'?'MIDNIGHT SUN':polar==='night'?'POLAR NIGHT':isDay?'SUNSET '+fmt(ssMin):'SUNRISE '+fmt(srMin);
     const cres=(cx,cy,r)=>`M ${cx} ${(cy-r).toFixed(1)} A ${r} ${r} 0 1 1 ${cx} ${(cy+r).toFixed(1)} A ${(r*0.5).toFixed(1)} ${r} 0 1 0 ${cx} ${(cy-r).toFixed(1)} Z`;
     return html`
       <div class="arcbox">
-        <svg viewBox="0 0 288 100" style="width:100%;display:block" aria-hidden="true">
+        <svg viewBox="0 0 288 84" style="width:100%;display:block" aria-hidden="true">
           <path d=${seg(0,1)} fill="none" stroke="var(--edge2)" stroke-width="2"/>
-          ${!polar&&html`<path d=${seg(srT,ssT)} fill="none" stroke="var(--cy)" stroke-width="3.2" stroke-linecap="round"/>`}
-          ${!polar&&html`<circle cx=${rx} cy=${ry} r="2.3" fill="var(--cy)"/>`}
-          ${!polar&&html`<circle cx=${stx} cy=${sty} r="2.3" fill="var(--cy)"/>`}
+          ${nowT>0&&html`<path d=${seg(0,nowT)} fill="none" stroke="var(--cy)" stroke-width="3" stroke-linecap="round"/>`}
           ${isDay?html`
             <circle cx=${sx} cy=${sy} r="11" fill="none" stroke="var(--amber)" stroke-opacity=".32"/>
             <circle cx=${sx} cy=${sy} r="7.5" fill="var(--amber)"/>
           `:html`
             <path d=${cres(sx,sy,7.5)} class="moon" transform=${'rotate(20 '+sx+' '+sy+')'}/>
           `}
-          <text x="14" y="96" class=${'suntime'+(isDay?'':' on')}>&#9650; ${polar==='night'?'--:--':fmt(srMin)}</text>
-          <text x="274" y="96" text-anchor="end" class=${'suntime'+(isDay?' on':'')}>${polar==='day'?'--:--':fmt(ssMin)} &#9660;</text>
-          <text x="144" y="60" text-anchor="middle" class="arcnow">${nowHM()}</text>
-          <text x="144" y="74" text-anchor="middle" class="arclbl">${cutMin<=0?'FASTING — WINDOW CLOSED':cutStr+' LEFT IN THE WINDOW'}</text>
+          <text x="144" y="58" text-anchor="middle" class="arclbl">${sunLine}</text>
+          <text x="144" y="72" text-anchor="middle" class="arclbl">${cutMin<=0?'FASTING — WINDOW CLOSED':cutStr+' LEFT IN THE WINDOW'}</text>
         </svg>
       </div>`;
   })();
