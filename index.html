@@ -253,6 +253,61 @@
   .scanline{height:2px;background:linear-gradient(90deg,transparent,var(--cy),transparent);animation:scan 1s linear infinite;margin:10px 0}
   @keyframes scan{from{transform:translateX(-40%)}to{transform:translateX(40%)}}
   .mt8{margin-top:8px}.mt10{margin-top:10px}.mt12{margin-top:12px}.mb10{margin-bottom:10px}
+
+  /* ---- Helios 2.0 ---- */
+  .arcbox{padding:6px 2px 0}
+  .arclbl{font-family:var(--mono);font-size:9px;letter-spacing:.14em;fill:var(--dim2)}
+  .arcnow{font-family:var(--mono);font-size:13px;font-weight:700;fill:var(--txt)}
+  .arccut{font-family:var(--mono);font-size:9px;letter-spacing:.1em;fill:var(--red)}
+  .hero{display:flex;align-items:center;gap:16px;margin-top:2px}
+  .heronum{font-family:var(--mono);font-size:23px;font-weight:800;fill:var(--txt)}
+  .herosub{font-family:var(--mono);font-size:9.5px;fill:var(--dim)}
+  body.sea .heronum,body.sea .arcnow{fill:#12403A}
+  .rails{flex:1;display:flex;flex-direction:column;gap:11px;min-width:0}
+  .rail .l{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--dim);margin-bottom:4px}
+  .rail .l b{font-weight:600}
+  .rail .track{height:6px;background:rgba(0,0,0,.28);border-radius:3px;overflow:hidden;border:1px solid var(--edge)}
+  body.sea .rail .track{background:#F2E9E0}
+  .rail .fill{height:100%;border-radius:3px;transition:width .6s cubic-bezier(.3,.9,.35,1)}
+  .protline{display:flex;justify-content:space-between;align-items:baseline;margin-top:12px;padding-top:10px;border-top:1px solid var(--edge)}
+  .nextcard{display:flex;align-items:center;gap:12px;width:100%;background:rgba(255,122,80,.07);border:1px solid var(--edge2);
+    border-radius:15px;padding:13px 14px;cursor:pointer;text-align:left;color:var(--txt);font-family:var(--disp);transition:all .15s}
+  .nextcard:active{transform:scale(.98)}
+  .nextcard .big{flex:1;font-size:14.5px;font-weight:600;line-height:1.35}
+  .nextcard .go{font-family:var(--mono);font-size:10px;letter-spacing:.12em;background:var(--sun);color:#3D1408;border-radius:999px;padding:6px 11px;font-weight:800;white-space:nowrap}
+  body.sea .nextcard{background:#fff;box-shadow:0 3px 12px -6px rgba(15,168,143,.2)}
+  body.sea .nextcard .go{background:linear-gradient(135deg,#0FA88F,#3BC9AE);color:#fff}
+  .nextrow{all:unset;cursor:pointer;display:flex;align-items:center;gap:9px;width:100%;padding:8px 4px;border-bottom:1px solid var(--edge);font-size:13.5px;color:var(--txt)}
+  .nextrow:last-of-type{border-bottom:none}
+  .nextrow .arr{color:var(--dim2);font-size:12px}
+  .streak{display:flex;justify-content:space-between;align-items:center;margin:2px 2px 14px;padding:0 3px}
+  .sdots{display:flex;gap:7px}
+  .sdot{width:11px;height:11px;border-radius:50%;background:var(--edge);transition:background .3s}
+  .sdot.hit{background:var(--green);box-shadow:0 0 8px -2px var(--green)}
+  .sdot.today{background:transparent;border:2px solid var(--amber);box-sizing:border-box}
+  .sdot.today.hit{background:var(--green);border-color:var(--green)}
+  .slabel{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--amber)}
+  .freq{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+  .fq{background:rgba(255,122,80,.06);border:1px solid var(--edge2);border-radius:999px;padding:9px 14px;font-size:13px;font-weight:600;
+    color:var(--txt);cursor:pointer;font-family:var(--disp);transition:all .13s}
+  .fq:active{transform:scale(.94);border-color:var(--cy);background:rgba(255,122,80,.14)}
+  .fq small{font-family:var(--mono);font-size:10px;color:var(--dim);font-weight:400;margin-left:5px}
+  body.sea .fq{background:#fff;box-shadow:0 2px 8px -4px rgba(15,168,143,.25)}
+  .mealcard{display:flex;align-items:center;gap:11px;background:rgba(13,23,40,.55);border:1px solid var(--edge);border-radius:13px;
+    padding:10px 12px;margin-bottom:8px}
+  body.sea .mealcard{background:#fff;border-color:var(--edge)}
+  .mealcard .tt{font-family:var(--mono);font-size:10px;color:var(--dim2);min-width:37px}
+  .mealcard .nm2{flex:1;min-width:0;font-size:14px;font-weight:600}
+  .mealcard .mac2{font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:2px;font-weight:400}
+  .mealcard .x{background:none;border:none;color:var(--dim2);cursor:pointer;font-size:13px;padding:2px 4px}
+  .fuelfoot{display:flex;justify-content:space-between;align-items:center;background:rgba(255,122,80,.06);border:1px solid var(--edge2);
+    border-radius:15px;padding:13px 15px;margin-bottom:14px}
+  body.sea .fuelfoot{background:#fff;box-shadow:0 3px 12px -6px rgba(15,168,143,.2)}
+  .fuelfoot .kl{font-family:var(--mono);font-size:17px;font-weight:800;color:var(--txt)}
+  .fuelfoot .ks{font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:2px}
+  .fuelfoot .wt{font-family:var(--mono);font-size:11px;color:var(--amber);text-align:right}
+  .fuelfoot .wt small{display:block;font-size:9.5px;color:var(--dim2);margin-top:2px}
+  .wrap>.panel:nth-child(2){animation-delay:.04s}.wrap>.panel:nth-child(3){animation-delay:.08s}.wrap>.panel:nth-child(4){animation-delay:.12s}
 </style>
 </head>
 <body>
@@ -1276,6 +1331,44 @@ function App(){
     if(done)items.push(['stack','›',(suppList.length-suppDone)+' supplements left in the stack']);
     return items.slice(0,4);
   })();
+  // ---- momentum: streak of consecutive logged days (today never breaks it while still open) ----
+  const hasFuel=(x)=>!!(x.doc&&(x.doc.meals||[]).length>0);
+  const streak=(()=>{
+    let s=0;
+    for(let i=ledgerDays.length-1;i>=0;i--){
+      const x=ledgerDays[i];
+      if(x.live){if(hasFuel(x))s++;continue;}
+      if(hasFuel(x))s++;else break;
+    }
+    return s;
+  })();
+  const last7=ledgerDays.slice(-7);
+  const consistPct=Math.round(ledgerDays.filter(hasFuel).length/ledgerDays.length*100);
+  // ---- solar arc: the sun crosses the day 06:00 → 23:00, feeding cutoff marked on the path ----
+  const solarArc=(()=>{
+    const A0=6*60,A1=23*60;
+    const nowMin=now.getHours()*60+now.getMinutes();
+    const t=Math.max(0,Math.min(1,(nowMin-A0)/(A1-A0)));
+    const cutT=Math.max(0,Math.min(1,(((+cutHM[0]||21)*60+(+cutHM[1]||0))-A0)/(A1-A0)));
+    const bez=(tt)=>[(1-tt)*(1-tt)*16+2*(1-tt)*tt*144+tt*tt*272,(1-tt)*(1-tt)*76+2*(1-tt)*tt*(-12)+tt*tt*76];
+    const seg=(from,to)=>{let p3='M'+bez(from).map(v=>v.toFixed(1)).join(' ');for(let i=1;i<=24;i++){p3+=' L'+bez(from+(to-from)*i/24).map(v=>v.toFixed(1)).join(' ');}return p3;};
+    const [sx,sy]=bez(t);const [kx,ky]=bez(cutT);
+    const closed=cutMin<=0;
+    return html`
+      <div class="arcbox">
+        <svg viewBox="0 0 288 96" style="width:100%;display:block" aria-hidden="true">
+          <path d=${seg(0,1)} fill="none" stroke="var(--edge2)" stroke-width="2"/>
+          ${t>0&&html`<path d=${seg(0,t)} fill="none" stroke="var(--cy)" stroke-width="3" stroke-linecap="round"/>`}
+          <line x1=${kx} y1=${ky-6} x2=${kx} y2=${ky+6} stroke=${closed?'var(--red)':'var(--amber)'} stroke-width="2" transform=${`rotate(${(cutT-0.5)*70} ${kx} ${ky})`}/>
+          <circle cx=${sx} cy=${sy} r="7" fill="var(--amber)"/>
+          <circle cx=${sx} cy=${sy} r="11" fill="none" stroke="var(--amber)" stroke-opacity=".35"/>
+          <text x="16" y="93" class="arclbl">06:00</text>
+          <text x="272" y="93" text-anchor="end" class=${closed?'arccut':'arclbl'}>${closed?'WINDOW CLOSED':'CUTOFF '+(T.cutoff||'21:00')}</text>
+          <text x="144" y="60" text-anchor="middle" class="arcnow">${nowHM()}</text>
+          <text x="144" y="74" text-anchor="middle" class="arclbl">${closed?'FASTING — SEE YOU AT SUNRISE':cutStr+' LEFT IN THE WINDOW'}</text>
+        </svg>
+      </div>`;
+  })();
   const headliner=!P.peptides&&showDiff&&html`
     <div class="showcase">
       ${showDiff.ms>0?html`
@@ -1319,38 +1412,69 @@ function App(){
   const cmdTab=html`
     <${Fragment}>
       ${headliner}
-      ${dayLoaded&&html`
-        <div class="panel">
-          <div class="ptitle"><span> NEXT UP</span><b>${nextUp.length===0?'ALL CLEAR':nextUp.length+' TO GO'}</b></div>
-          ${nextUp.length===0&&html`<div style="font-size:14px;color:var(--green);font-weight:600">Everything handled — the sun is earned.</div>`}
-          ${nextUp.map(([go,ic,txt],i)=>html`
-            <button key=${i} onClick=${()=>setTab(go)}
-              style="all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;width:100%;padding:9px 4px;border-bottom:1px solid var(--edge);font-size:14px">
-              <span style="font-size:17px">${ic}</span>
-              <span style="flex:1">${txt}</span>
-              <span class="dim" style="font-size:12px">›</span>
-            </button>`)}
-</div>`}
+      <div class="panel" style="padding:12px 14px 8px">
+        ${solarArc}
+</div>
       <div class="panel">
-        <div class="ptitle"><span>MACRO TELEMETRY</span><b>${Math.max(0,T.kcal-tot.kcal)} KCAL REMAINING</b></div>
-        <div class="rings">
-          <${Ring} v=${tot.kcal} max=${T.kcal} label="KCAL" col="sun" />
-          <${Ring} v=${tot.p} max=${T.protein} label="PROTEIN" unit="g" col=${tot.p>=T.protein?'#3ECF8E':'#FFC65C'} />
+        <div class="ptitle"><span>MACRO TELEMETRY</span><b>${Math.max(0,T.kcal-tot.kcal)} KCAL LEFT</b></div>
+        <div class="hero">
+          <svg width="126" height="126" viewBox="0 0 126 126" style="transform:rotate(-90deg);flex:0 0 auto">
+            <defs>
+              <linearGradient id="heroG" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#FFC65C"/><stop offset="1" stop-color="#FF6B57"/>
+              </linearGradient>
+            </defs>
+            <circle cx="63" cy="63" r="52" fill="none" stroke="var(--edge)" stroke-width="10"/>
+            <circle cx="63" cy="63" r="52" fill="none" stroke="url(#heroG)" stroke-width="10" stroke-linecap="round"
+              stroke-dasharray=${2*Math.PI*52} stroke-dashoffset=${2*Math.PI*52*(1-Math.min(1,tot.kcal/T.kcal))}
+              style="transition:stroke-dashoffset .6s cubic-bezier(.3,.9,.35,1)"/>
+            <g transform="rotate(90 63 63)">
+              <text x="63" y="60" text-anchor="middle" class="heronum">${Math.round(tot.kcal)}</text>
+              <text x="63" y="76" text-anchor="middle" class="herosub">of ${T.kcal}</text>
+            </g>
+          </svg>
+          <div class="rails">
+            <div class="rail"><div class="l"><span>PROTEIN</span><b style=${{color:tot.p>=T.protein?'var(--green)':'var(--txt)'}}>${Math.round(tot.p)} / ${T.protein}g</b></div>
+              <div class="track"><div class="fill" style=${{width:Math.min(100,tot.p/T.protein*100)+'%',background:'var(--green)'}}></div></div></div>
+            <div class="rail"><div class="l"><span>CARBS</span><b>${Math.round(tot.c)} / ${T.carbs}g</b></div>
+              <div class="track"><div class="fill" style=${{width:Math.min(100,tot.c/T.carbs*100)+'%',background:'var(--amber)'}}></div></div></div>
+            <div class="rail"><div class="l"><span>FAT</span><b>${Math.round(tot.f)} / ${T.fat}g</b></div>
+              <div class="track"><div class="fill" style=${{width:Math.min(100,tot.f/T.fat*100)+'%',background:'#B07EFF'}}></div></div></div>
 </div>
-        <div class="minibars">
-          <div class="mb"><div class="l"><span>CARBS</span><span>${Math.round(tot.c)} / ${T.carbs}g</span></div>
-            <div class="track"><div class="fill" style=${{width:Math.min(100,tot.c/T.carbs*100)+'%',background:'var(--amber)'}}></div></div></div>
-          <div class="mb"><div class="l"><span>FAT</span><span>${Math.round(tot.f)} / ${T.fat}g</span></div>
-            <div class="track"><div class="fill" style=${{width:Math.min(100,tot.f/T.fat*100)+'%',background:'#B07EFF'}}></div></div></div>
 </div>
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:10px;padding-top:9px;border-top:1px solid var(--edge)">
+        <div class="protline">
           <b style=${{fontSize:'12.5px',letterSpacing:'.08em',color:tot.p>=T.protein?'var(--green)':'var(--amber)'}}>
             ${tot.p>=T.protein?'PROTEIN TARGET HIT ✓':Math.round(T.protein-tot.p)+'g PROTEIN TO GO'}
 </b>
           <span class="dim" style="font-size:11px">
-            ${hist===null?'…':'LOGGED '+(ledgerDays.slice(-7).filter(x=>x.doc&&(x.doc.meals||[]).length>0).length)+' OF LAST 7 DAYS'}
+            ${hist===null?'…':'LOGGED '+(last7.filter(hasFuel).length)+' OF LAST 7 DAYS'}
 </span>
 </div>
+</div>
+      ${dayLoaded&&html`
+        ${nextUp.length===0?html`
+          <div class="panel" style="text-align:center">
+            <div style="font-size:14px;color:var(--green);font-weight:600">Everything handled — the sun is earned.</div>
+</div>
+        `:html`
+          <div class="panel">
+            <div class="ptitle"><span>NEXT UP</span><b>${nextUp.length} TO GO</b></div>
+            <button class="nextcard" onClick=${()=>setTab(nextUp[0][0])}>
+              <span class="big">${nextUp[0][2]}</span>
+              <span class="go">GO</span>
+            </button>
+            ${nextUp.slice(1).map(([go,ic,txt],i)=>html`
+              <button class="nextrow" key=${i} onClick=${()=>setTab(go)}>
+                <span style="flex:1">${txt}</span>
+                <span class="arr">›</span>
+              </button>`)}
+</div>`}
+      `}
+      <div class="streak">
+        <div class="sdots">
+          ${last7.map((x,i)=>html`<span key=${x.k} class=${'sdot'+(hasFuel(x)?' hit':'')+(x.live?' today':'')}></span>`)}
+</div>
+        <span class="slabel">${streak>0?streak+'-DAY STREAK · '+consistPct+'%':'LOG TODAY — START THE STREAK'}</span>
 </div>
       <div class="statgrid">
         ${P.peptides?html`
@@ -1402,11 +1526,30 @@ function App(){
 </div>
     <//>`;
 
+  // Most-logged foods from the last 14 days, matched to the saved list — one tap re-logs them.
+  const freqFoods=(()=>{
+    const count={};
+    const bump=(n)=>{const k2=(n||'').trim().toLowerCase();if(k2)count[k2]=(count[k2]||0)+1;};
+    if(hist)for(const dd of Object.values(hist))for(const m of (dd.meals||[]))bump(m.n);
+    for(const m of d.meals)bump(m.n);
+    const byName={};
+    for(const f2 of foods){const k2=f2.n.trim().toLowerCase();if(!byName[k2])byName[k2]=f2;}
+    const ranked=Object.keys(count).filter(n=>byName[n]).sort((a,b)=>count[b]-count[a]).map(n=>byName[n]);
+    const rest=foods.filter(f2=>!ranked.includes(f2));
+    return [...ranked,...rest].slice(0,6);
+  })();
   const fuelTab=html`
     <${Fragment}>
       <div class="panel">
         ${aiPanel}
 </div>
+      ${freqFoods.length>0&&html`
+        <div class="panel" style="padding:13px 15px 15px">
+          <div class="ptitle" style="margin-bottom:1px"><span>FREQUENT — ONE TAP LOGS IT</span></div>
+          <div class="freq">
+            ${freqFoods.map(f2=>html`<button class="fq" key=${f2.id} onClick=${()=>addMeal(f2)}>${f2.n}<small>${f2.kcal}</small></button>`)}
+</div>
+</div>`}
       <div class="panel" style="padding-bottom:${qfOpen?'':'10px'}">
         <button onClick=${toggleQf} style="all:unset;cursor:pointer;display:flex;justify-content:space-between;align-items:baseline;width:100%">
           <span class="ptitle" style="margin:0"><span>${qfOpen?'▾':'▸'} QUICK FUEL — SAVED FOODS</span></span>
@@ -1457,13 +1600,21 @@ function App(){
         <div class="ptitle"><span>TODAY'S LOG</span><b>${Math.round(tot.kcal)} KCAL · ${Math.round(tot.p)}g P</b></div>
         ${d.meals.length===0&&html`<div class="empty">NO FUEL LOGGED</div>`}
         ${[...d.meals].reverse().map(m=>html`
-          <div class="meal" key=${m.id}>
-            <span class="t">${m.t}</span>
-            <span style="flex:1;padding:0 8px">${m.n}</span>
-            <span class="m">${m.kcal} · P${m.p}</span>
-            <button class="x" style="color:var(--cy);margin-right:2px" title="log again" onClick=${()=>addMeal({n:m.n,kcal:m.kcal,p:m.p,c:m.c,f:m.f})}>↻</button>
+          <div class="mealcard" key=${m.id}>
+            <span class="tt">${m.t}</span>
+            <div class="nm2">${m.n}
+              <div class="mac2">${m.kcal} kcal · P${m.p} C${m.c} F${m.f}</div>
+</div>
+            <button class="x" style="color:var(--cy)" title="log again" onClick=${()=>addMeal({n:m.n,kcal:m.kcal,p:m.p,c:m.c,f:m.f})}>↻</button>
             <button class="x" onClick=${()=>delMeal(m.id)}>✕</button>
 </div>`)}
+</div>
+      <div class="fuelfoot">
+        <div>
+          <div class="kl">${Math.max(0,T.kcal-tot.kcal)} kcal left</div>
+          <div class="ks">${tot.p>=T.protein?'PROTEIN DONE ✓':Math.round(T.protein-tot.p)+'g PROTEIN TO GO'}</div>
+</div>
+        <div class="wt">${cutMin>0?'WINDOW '+cutStr:'WINDOW CLOSED'}<small>${cutMin>0?'closes '+(T.cutoff||'21:00'):'fasting till sunrise'}</small></div>
 </div>
       ${ledgerPanel}
     <//>`;
